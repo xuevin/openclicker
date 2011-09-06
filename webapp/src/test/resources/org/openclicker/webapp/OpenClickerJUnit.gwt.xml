@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<module>
-  <!-- Inherit our applications main module.                      -->
-  <inherits name='org.openclicker.webapp.OpenClicker'/>
-
-  <!-- Specify the path to any remote services.                   -->
-  <servlet path="/OpenClicker/greet" class="org.openclicker.webapp.server.GreetingServiceImpl" />
-
-</module>
