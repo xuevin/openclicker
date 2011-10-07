@@ -18,8 +18,7 @@ public class Class {
     this.setClass_name(class_name);
   }
   
-  @SuppressWarnings("unused")
-  private void setClass_uid(int class_uid) {
+  protected void setClass_uid(int class_uid) {
     this.class_uid = class_uid;
   }
   
@@ -70,6 +69,20 @@ public class Class {
   
   protected Set<Quiz> getQuizes() {
     return quizes;
+  }
+  
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) return true;
+    if (!(other instanceof Class)) return false;
+    
+    final Class tempClass = (Class) other;
+    if (tempClass.getClass_uid() == getClass_uid()) {
+      return true;
+    }
+    
+    return false;
+    
   }
   
 }

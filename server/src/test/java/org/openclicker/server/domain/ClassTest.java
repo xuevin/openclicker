@@ -1,5 +1,7 @@
 package org.openclicker.server.domain;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.*;
 
 import java.util.HashSet;
@@ -105,6 +107,20 @@ public class ClassTest {
   @Test
   public void testGetQuizes() {
     assertEquals(0, englishClass1.getQuizes().size());
+  }
+  
+  @Test
+  public void testEquals(){
+    Class student = new Class();
+    student.setClass_uid(100);
+    
+    Class class2 = new Class();
+    class2.setClass_uid(200);
+
+    assertThat(student,not(equalTo(class2)));
+    
+    class2.setClass_uid(100);
+    assertEquals(student, class2);
   }
   
 }

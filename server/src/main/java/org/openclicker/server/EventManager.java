@@ -97,7 +97,7 @@ public class EventManager {
 //   session.save(choice4);
 //   session.save(response);
 //   
-//   session.getTransaction().commit();
+   session.getTransaction().commit();
    }
   //  
   // private void addPersonToEvent(Long personId, Long eventId) {

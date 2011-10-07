@@ -93,8 +93,7 @@ public class Quiz {
     return question;
   }
   
-  @SuppressWarnings("unused")
-  private void setQuiz_uid(int quiz_uid) {
+  protected void setQuiz_uid(int quiz_uid) {
     this.quiz_uid = quiz_uid;
   }
   
@@ -124,6 +123,19 @@ public class Quiz {
   
   protected Set<AvailableChoice> getChoices() {
     return choices;
+  }
+  
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) return true;
+    if (!(other instanceof Quiz)) return false;
+    
+    final Quiz tempQuiz = (Quiz) other;
+    if (tempQuiz.getQuiz_uid() == getQuiz_uid()) {
+      return true;
+    }
+    
+    return false;
   }
   
 }

@@ -1,5 +1,7 @@
 package org.openclicker.server.domain;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.*;
 
 import java.util.Date;
@@ -73,6 +75,15 @@ public class QuizResponseTest {
   public void testGetSelected_choice() {
     assertEquals(null,quizResponse1.getQuiz());
     assertEquals(choice,quizResponse2.getSelected_choice());
+  }
+  
+  @Test
+  public void testEquals(){
+    assertThat(quizResponse1,not(equalTo(quizResponse2)));
+    quizResponse1.setQuiz(quiz);
+    quizResponse1.setSelected_choice(choice);
+    assertEquals(quizResponse1, quizResponse2);
+
   }
   
 }

@@ -17,8 +17,7 @@ public class AvailableChoice {
     this.setDescription(description);
   }
   
-  @SuppressWarnings("unused")
-  private void setChoice_uid(int choice_uid) {
+  protected void setChoice_uid(int choice_uid) {
     this.choice_uid = choice_uid;
   }
   
@@ -48,6 +47,20 @@ public class AvailableChoice {
   
   protected Set<Quiz> getQuizesAsAnswer() {
     return quizesAsAnswer;
+  }
+  
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) return true;
+    if (!(other instanceof AvailableChoice)) return false;
+    
+    final AvailableChoice tempChoice = (AvailableChoice) other;
+    if (tempChoice.getChoice_uid() == getChoice_uid()) {
+      return true;
+    }
+    
+    return false;
+    
   }
   
 }

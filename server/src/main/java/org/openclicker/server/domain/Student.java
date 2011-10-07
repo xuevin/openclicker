@@ -1,5 +1,6 @@
 package org.openclicker.server.domain;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,8 +29,7 @@ public class Student {
     setEmail_address(emailAddress);
   }
   
-  @SuppressWarnings("unused")
-  private void setStudent_uid(int student_uid) {
+  protected void setStudent_uid(int student_uid) {
     this.student_uid = student_uid;
   }
   
@@ -105,5 +105,21 @@ public class Student {
   public void removeFromClass(Class classToRemove) {
     this.getClasses().remove(classToRemove);
     classToRemove.getStudents().remove(this);
+  }
+  
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) return true;
+    if (!(other instanceof Student)) return false;
+    
+    final Student tempStudent = (Student) other;
+    if (tempStudent.getStudent_uid() == getStudent_uid()) {
+      return true;
+    }
+    return false;
+  }
+  
+  public Set<QuizResponse> getQuizResponse_Unmodifiable() {
+    return Collections.unmodifiableSet(quizReponses);
   }
 }

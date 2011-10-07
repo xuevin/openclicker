@@ -7,8 +7,7 @@ public class QuizResponse {
   private Quiz quiz;
   private AvailableChoice selected_choice;
   
-  public QuizResponse() {
-  }
+  public QuizResponse() {}
   
   public QuizResponse(Quiz quiz, AvailableChoice choice, Date dateTaken) {
     this.setQuiz(quiz);
@@ -39,6 +38,30 @@ public class QuizResponse {
   
   public AvailableChoice getSelected_choice() {
     return selected_choice;
+  }
+  
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) return true;
+    if (!(other instanceof QuizResponse)) return false;
+    
+    final QuizResponse tempResponse = (QuizResponse) other;
+    
+    // Two quiz responses are equivalent if they have the same choice uid, and
+    // have the same choice uid.
+    
+    try {
+      if (tempResponse.getQuiz().equals(getQuiz())
+          && tempResponse.getSelected_choice().equals(getSelected_choice())) {
+        return true;
+      }
+    } catch (NullPointerException e) {
+      System.out.println("In Comparing Quiz Responses, There was a null value");
+      return false;
+    }
+    
+    return false;
+    
   }
   
 }
