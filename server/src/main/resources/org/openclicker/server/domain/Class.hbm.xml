@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+
+<hibernate-mapping package="org.openclicker.server.domain">
+
+	<class name="Class" table="Class">
+		<id name="class_uid" column="class_uid">
+			<generator class="increment" />
+		</id>
+		<property name="class_name" />
+		
+		<set name="students" table="RegisteredIn" inverse="true">
+			<key column="class_uid" />
+			<many-to-many column="student_uid" class="Student" />
+		</set>
+		
+		<set name="quizes" table="GivesOut" inverse="true">
+			<key column="class_uid" />
+			<many-to-many column="quiz_uid" class="Quiz" />
+		</set>
+	</class>
+
+</hibernate-mapping>

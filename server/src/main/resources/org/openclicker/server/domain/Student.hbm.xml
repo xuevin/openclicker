@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+
+<hibernate-mapping package="org.openclicker.server.domain">
+
+	<class name="Student" table="Student">
+		<id name="student_uid" column="student_uid">
+			<generator class="increment" />
+		</id>
+		<property name="email_address" />
+		<property name="first_name" />
+		<property name="last_name" />
+		<property name="gender" />
+
+		<set name="classes" table="RegisteredIn">
+			<key column="student_uid" />
+			<many-to-many column="class_uid" class="Class" />
+		</set>
+
+		<set name="quizReponses" table="Takes">
+			<key column="student_uid" />
+			<composite-element class="QuizResponse">
+				<many-to-one name="quiz" class="Quiz" column="quiz_uid" />
+				<many-to-one name="selected_choice" class="AvailableChoice"
+					column="choice_uid" />
+				<property name="date_taken" />
+			</composite-element>
+
+		</set>
+	</class>
+
+</hibernate-mapping>

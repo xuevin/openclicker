@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+
+<hibernate-mapping package="org.openclicker.server.domain">
+
+	<class name="Quiz" table="Quiz">
+		<id name="quiz_uid" column="quiz_uid">
+			<generator class="increment" />
+		</id>
+		<property name="topic" />
+		<property name="type" />
+		<property name="question" />
+
+		<set name="classes" table="GivesOut">
+			<key column="quiz_uid" />
+			<many-to-many column="class_uid" class="Class" />
+		</set>
+
+		<set name="answers" table="Answer">
+			<key column="quiz_uid" />
+			<many-to-many column="choice_uid" class="AvailableChoice" />
+		</set>
+
+		<set name="choices" table="QuizChoice">
+			<key column="quiz_uid" />
+			<many-to-many column="choice_uid" class="AvailableChoice" />
+		</set>
+
+	</class>
+
+</hibernate-mapping>
