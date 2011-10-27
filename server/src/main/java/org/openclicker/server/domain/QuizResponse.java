@@ -1,8 +1,14 @@
 package org.openclicker.server.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class QuizResponse {
+public class QuizResponse implements Serializable {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  
   private Date date_taken;
   private Quiz quiz;
   private AvailableChoice selected_choice;
@@ -47,12 +53,14 @@ public class QuizResponse {
     
     final QuizResponse tempResponse = (QuizResponse) other;
     
-    // Two quiz responses are equivalent if they have the same choice uid, and
+    // Two quiz responses are equivalent if they have the same choice uid, date
+    // and
     // have the same choice uid.
     
     try {
       if (tempResponse.getQuiz().equals(getQuiz())
-          && tempResponse.getSelected_choice().equals(getSelected_choice())) {
+          && tempResponse.getSelected_choice().equals(getSelected_choice())
+          && tempResponse.getDate_taken().equals(getDate_taken())) {
         return true;
       }
     } catch (NullPointerException e) {
@@ -62,6 +70,14 @@ public class QuizResponse {
     
     return false;
     
+  }
+  
+  @Override
+  public int hashCode() {
+    int result;
+    result = quiz.hashCode() * 26 + selected_choice.getChoice_uid()
+        + date_taken.hashCode();
+    return result;
   }
   
 }

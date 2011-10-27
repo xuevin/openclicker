@@ -80,8 +80,10 @@ public class QuizResponseTest {
   @Test
   public void testEquals(){
     assertThat(quizResponse1,not(equalTo(quizResponse2)));
+    
     quizResponse1.setQuiz(quiz);
     quizResponse1.setSelected_choice(choice);
+    quizResponse1.setDate_taken(todaysDate);
     assertEquals(quizResponse1, quizResponse2);
 
   }

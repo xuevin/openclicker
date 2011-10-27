@@ -1,9 +1,14 @@
 package org.openclicker.server.domain;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Quiz {
+public class Quiz implements Serializable{
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   private int quiz_uid;
   private String topic;
   private String type;
@@ -138,4 +143,10 @@ public class Quiz {
     return false;
   }
   
+  @Override
+  public int hashCode() {
+    int result;
+    result = quiz_uid * 26;
+    return result;
+  }
 }

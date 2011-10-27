@@ -1,10 +1,15 @@
 package org.openclicker.server.domain;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Student {
+public class Student implements Serializable {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   private int student_uid;
   private String email_address;
   private String first_name;
@@ -121,5 +126,12 @@ public class Student {
   
   public Set<QuizResponse> getQuizResponse_Unmodifiable() {
     return Collections.unmodifiableSet(quizReponses);
+  }
+  
+  @Override
+  public int hashCode() {
+    int result;
+    result = student_uid * 26;
+    return result;
   }
 }

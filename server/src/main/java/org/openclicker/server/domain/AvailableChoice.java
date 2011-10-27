@@ -1,9 +1,15 @@
 package org.openclicker.server.domain;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class AvailableChoice {
+public class AvailableChoice implements Serializable {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  
   private int choice_uid;
   private String description;
   private Set<Quiz> quizesAsAnswer = new HashSet<Quiz>();
@@ -61,6 +67,13 @@ public class AvailableChoice {
     
     return false;
     
+  }
+  
+  @Override
+  public int hashCode() {
+    int result;
+    result = choice_uid * 26;
+    return result;
   }
   
 }

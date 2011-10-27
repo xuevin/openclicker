@@ -1,9 +1,17 @@
 package org.openclicker.server.domain;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Class {
+public class Class implements Serializable {
+  
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   
   private int class_uid;
   private String class_name;
@@ -83,6 +91,17 @@ public class Class {
     
     return false;
     
+  }
+  
+  @Override
+  public int hashCode() {
+    int result;
+    result = class_uid * 26;
+    return result;
+  }
+  
+  public Collection<Student> getStudents_Unmodifiable(){
+    return Collections.unmodifiableCollection(students);
   }
   
 }
