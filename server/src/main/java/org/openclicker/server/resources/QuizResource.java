@@ -11,19 +11,17 @@ import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
 
 public class QuizResource extends ServerResource {
-  private static volatile Quiz temp;
   
   @Get
   public String retrieve() {
     Integer quiz_uid = Integer.parseInt((String) getRequestAttributes().get(
         "quiz_uid"));
     try {
-      temp = fetchQuiz(quiz_uid);
+      return toJSON(fetchQuiz(quiz_uid)).toString();
     } catch (EmptyValueException e) {
       return JSONUtils.createNewError(e.getMessage()).toString();
     }
     
-    return toJSON(temp).toString();
   }
   
   private static JSONObject toJSON(Quiz quiz) {

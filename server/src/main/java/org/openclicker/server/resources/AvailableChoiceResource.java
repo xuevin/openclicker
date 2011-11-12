@@ -6,8 +6,9 @@ import org.hibernate.Session;
 import org.openclicker.server.domain.AvailableChoice;
 import org.openclicker.server.util.EmptyValueException;
 import org.openclicker.server.util.HibernateUtil;
-import org.openclicker.server.util.JSONUtils;
+import org.restlet.data.Status;
 import org.restlet.resource.Get;
+import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 public class AvailableChoiceResource extends ServerResource {
@@ -15,14 +16,16 @@ public class AvailableChoiceResource extends ServerResource {
   
   @Get
   public String retrieve() {
-    Integer choice_uid = Integer.parseInt((String) getRequestAttributes().get(
-        "choice_uid"));
+    
     try {
+      Integer choice_uid = Integer.parseInt((String) getRequestAttributes()
+          .get("choice_uid"));
       temp = fetchAvailableChoice(choice_uid);
     } catch (EmptyValueException e) {
-      return JSONUtils.createNewError(e.getMessage()).toString();
+      throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+    } catch (NumberFormatException e) {
+      throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
     }
-    
     return toJSON(temp).toString();
   }
   

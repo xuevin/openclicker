@@ -4,32 +4,34 @@ import net.sf.json.JSONObject;
 
 import org.hibernate.Session;
 import org.openclicker.server.domain.Student;
-import org.openclicker.server.domain.Student.Gender;
 import org.openclicker.server.util.EmptyValueException;
 import org.openclicker.server.util.HibernateUtil;
-import org.openclicker.server.util.JSONUtils;
+import org.restlet.data.Status;
 import org.restlet.resource.Get;
+import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 public class StudentResource extends ServerResource {
-  private static volatile Student temp = new Student("Foo", "Bar", Gender.M,
-      "FooBar@Foo.org");
   
   @Get
   public String retrieve() {
-    Integer student_uid = Integer.parseInt((String) getRequestAttributes().get(
-        "student_uid"));
     try {
-      temp = fetchStudent(student_uid);
+      Integer student_uid = Integer.parseInt((String) getRequestAttributes()
+          .get("student_uid"));
+      
+      return toJSON(fetchStudent(student_uid)).toString();
+      
+    } catch (NumberFormatException e) {
+      // The number did not parse correctly
+      throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
     } catch (EmptyValueException e) {
-      return JSONUtils.createNewError(e.getMessage()).toString();
+      // There is no student by that unique ID
+      throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
     }
-    
-    return toJSON(temp).toString();
   }
   
   private static JSONObject toJSON(Student student) {
-   
+    
     JSONObject object = new JSONObject();
     object.put("student_uid", student.getStudent_uid());
     object.put("gender", student.getGender());

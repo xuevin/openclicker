@@ -103,5 +103,7 @@ public class Class implements Serializable {
   public Collection<Student> getStudents_Unmodifiable(){
     return Collections.unmodifiableCollection(students);
   }
-  
+  public Collection<Quiz> getQuizzes_Unmodifiable(){
+    return Collections.unmodifiableCollection(quizes);
+  }  
 }
