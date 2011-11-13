@@ -1,12 +1,15 @@
 package org.openclicker.server.resources;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -15,75 +18,63 @@ import org.openclicker.server.domain.Quiz;
 import org.openclicker.server.util.EmptyValueException;
 import org.openclicker.server.util.HibernateUtil;
 import org.openclicker.server.util.SetStatusException;
-import org.restlet.data.MediaType;
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-import org.restlet.resource.Post;
-import org.restlet.resource.ResourceException;
-import org.restlet.resource.ServerResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StartQuizResource extends ServerResource {
+//Hypermedia Actions
+@Path("class/{class_uid_text}/quiz/{quiz_uid_text}")
+public class StartQuizResource {
   Logger logger = LoggerFactory.getLogger(this.getClass());
   
   public static final Collection<ClassQuizIdentifier> activeClassQuizContainer = new HashSet<ClassQuizIdentifier>();
   
-  @Get
-  public String retrieve() {
-    // For now, there is no getting allowed.
-    throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
+  @GET
+  @Produces("application/json")
+  public String getStatus() {
+    //TODO
+    return "";
     
   }
   
-  @Post
-  public Representation acceptJsonRepresentation(Representation entity) {
+  @POST
+  @Path("/start")
+  public Response start(@PathParam("class_uid_text") String class_uid_text,
+      @PathParam("quiz_uid_text") String quiz_uid_text, String context) {
+    setStatusOfQuiz(class_uid_text, quiz_uid_text, true);
+    return Response.ok().entity("").build();
+    
+  }
+  
+  @POST
+  @Path("/stop")
+  public Response stop(@PathParam("class_uid_text") String class_uid_text,
+      @PathParam("quiz_uid_text") String quiz_uid_text, String context) {
+    setStatusOfQuiz(class_uid_text, quiz_uid_text, false);
+    return Response.ok().entity("").build();
+  }
+  
+  private void setStatusOfQuiz(String class_uid_text, String quiz_uid_text,
+      boolean acceptResponses) {
     
     try {
-      if (entity.getMediaType().isCompatible(MediaType.APPLICATION_JSON)) {
-        
-        Integer class_uid = Integer.parseInt((String) getRequestAttributes()
-            .get("class_uid"));
-        
-        Integer quiz_uid = Integer.parseInt((String) getRequestAttributes()
-            .get("quiz_uid"));
-        JSONObject json = (JSONObject) JSONSerializer.toJSON(entity.getText());
-        
-        boolean acceptAnswers;
-        if (json.get("acceptAnswers").equals("true")) {
-          acceptAnswers = true;
-        } else {
-          acceptAnswers = false;
-        }
-        
-        setStatusOfQuiz(class_uid, quiz_uid, acceptAnswers, true);
-        setStatus(Status.SUCCESS_ACCEPTED);
-        
-        Representation rep = new StringRepresentation("Quiz status changed",
-            MediaType.TEXT_PLAIN);
-        return rep;
-      } else {
-        throw new ResourceException(Status.CLIENT_ERROR_UNSUPPORTED_MEDIA_TYPE);
-      }
-    } catch (JSONException e) {
-      throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
-    } catch (IOException e) {
-      logger.warn(e.getMessage());
-      throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
+      Integer class_uid = Integer.parseInt(class_uid_text);
+      Integer quiz_uid = Integer.parseInt(quiz_uid_text);
+      
+      setStatusOfQuiz(class_uid, quiz_uid, acceptResponses, false);
+      
     } catch (NumberFormatException e) {
-      throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+      logger.warn(e.getMessage());
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
     } catch (EmptyValueException e) {
-      throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+      logger.warn(e.getMessage());
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
     } catch (SetStatusException e) {
       logger.warn(e.getMessage());
-      throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
-    
   }
   
-  protected void setStatusOfQuiz(Integer class_uid, Integer quiz_uid,
+  protected void setStatusOfQuiz(int class_uid, int quiz_uid,
       boolean acceptResponses, boolean commit) throws EmptyValueException,
       SetStatusException {
     
@@ -131,7 +122,7 @@ public class StartQuizResource extends ServerResource {
         session.save(tempClass);// Not sure if this will work
         if (commit) {
           session.getTransaction().commit();
-        }else{
+        } else {
           session.close();
         }
         logger.info("Quiz " + quiz_uid + " successfully started for Class "
@@ -140,7 +131,7 @@ public class StartQuizResource extends ServerResource {
       }
     } catch (HibernateException e) {
       session.close();
-      throw new ResourceException(Status.CLIENT_ERROR_CONFLICT);
+      throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
   

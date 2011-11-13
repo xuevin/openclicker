@@ -1,6 +1,7 @@
 package org.openclicker.server.domain;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -129,6 +130,14 @@ public class Quiz implements Serializable{
   protected Set<AvailableChoice> getChoices() {
     return choices;
   }
+  
+  public Set<AvailableChoice> getAnswers_Unmodifiable() {
+    return Collections.unmodifiableSet(answers);
+  }
+  public Set<AvailableChoice> getChoices_Unmodifiable() {
+    return Collections.unmodifiableSet(choices);
+  }
+  
   
   @Override
   public boolean equals(Object other) {
