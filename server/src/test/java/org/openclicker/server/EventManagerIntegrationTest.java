@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Collection;
 import java.util.Date;
 
 import org.hibernate.Session;
@@ -138,7 +139,8 @@ public class EventManagerIntegrationTest {
     session.beginTransaction();
     
     // Add a AvailableChoice
-    Student robert = new Student("TEST", "TEST", Gender.M, "TEST@hunter.cuny.edu");
+    Student robert = new Student("TEST", "TEST", Gender.M,
+        "TEST@hunter.cuny.edu");
     
     Class englishClass = new Class("English");
     englishClass.addStudent(robert);
@@ -158,7 +160,8 @@ public class EventManagerIntegrationTest {
     
     englishClass.addQuizes(quiz1);
     
-    QuizResponse response = new QuizResponse(quiz1, choice3, new Date());
+    QuizResponse response = new QuizResponse(englishClass, quiz1, choice3,
+        new Date());
     
     robert.addQuizReponse(response);
     
@@ -170,29 +173,45 @@ public class EventManagerIntegrationTest {
     session.save(quiz1);
     session.save(robert);
     
-    for(QuizResponse r : robert.getQuizResponse_Unmodifiable()){
+    for (QuizResponse r : robert.getQuizResponse_Unmodifiable()) {
       System.out.println(r.getQuiz().getQuestion());
       System.out.println(r.getSelected_choice().getDescription());
       System.out.println(r.getDate_taken());
       
     }
     
-//    session.getTransaction().commit();
+    // session.getTransaction().commit();
     
     // Make a new session
-//    session = HibernateUtil.getSessionFactory().getCurrentSession();
-//    session.beginTransaction();
+    // session = HibernateUtil.getSessionFactory().getCurrentSession();
+    // session.beginTransaction();
     
-//    // Retrieve and check to make sure that they are the same
-//    Student tempStudent = (Student) session.get(Student.class, robert.getStudent_uid());
-//    assertTrue(tempStudent.getQuizResponse_Unmodifiable().contains(response));
-//    assertEquals(testChoice, tempChoice);
-//    
-//    // Delete
-//    session.beginTransaction();
-//    session.delete(session.get(AvailableChoice.class, testChoice
-//        .getChoice_uid()));
-//    session.getTransaction().commit();
+    // // Retrieve and check to make sure that they are the same
+    // Student tempStudent = (Student) session.get(Student.class,
+    // robert.getStudent_uid());
+    // assertTrue(tempStudent.getQuizResponse_Unmodifiable().contains(response));
+    // assertEquals(testChoice, tempChoice);
+    //    
+    // // Delete
+    // session.beginTransaction();
+    // session.delete(session.get(AvailableChoice.class, testChoice
+    // .getChoice_uid()));
+    // session.getTransaction().commit();
+  }
+  
+  @Test
+  public void testIterateThroughStudentQuizes() {
+    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+    session.beginTransaction();
+    Student tempStudent = (Student) session.get(Student.class,3);
+    Collection<QuizResponse> foo = tempStudent.getQuizResponse_Unmodifiable();
+    System.out.println(foo.size());
+    System.out.println(tempStudent.getFirst_name());
+    for(QuizResponse instance: foo){
+      System.out.println(instance.getQuiz().getQuiz_uid());
+    }
+    
+    
   }
   
 }

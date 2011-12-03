@@ -15,6 +15,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.openclicker.server.domain.Class;
 import org.openclicker.server.domain.Quiz;
+import org.openclicker.server.resources.containers.ClassQuizIdentifier;
 import org.openclicker.server.util.EmptyValueException;
 import org.openclicker.server.util.HibernateUtil;
 import org.openclicker.server.util.SetStatusException;
@@ -30,9 +31,18 @@ public class StartQuizResource {
   
   @GET
   @Produces("application/json")
-  public String getStatus() {
-    //TODO
-    return "";
+  public String getStatus(@PathParam("class_uid_text") String class_uid_text,
+      @PathParam("quiz_uid_text") String quiz_uid_text) {
+    try {
+      Integer class_uid = Integer.parseInt(class_uid_text);
+      Integer quiz_uid = Integer.parseInt(quiz_uid_text);
+      
+      return getStatusOfQuiz(class_uid, quiz_uid);
+      
+    } catch (NumberFormatException e) {
+      logger.warn(e.getMessage());
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
     
   }
   
@@ -60,6 +70,7 @@ public class StartQuizResource {
       Integer class_uid = Integer.parseInt(class_uid_text);
       Integer quiz_uid = Integer.parseInt(quiz_uid_text);
       
+      // TODO Set this to true when you want to commit
       setStatusOfQuiz(class_uid, quiz_uid, acceptResponses, false);
       
     } catch (NumberFormatException e) {
@@ -71,6 +82,36 @@ public class StartQuizResource {
     } catch (SetStatusException e) {
       logger.warn(e.getMessage());
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+  }
+  
+  private String getStatusOfQuiz(Integer class_uid, Integer quiz_uid) {
+    
+    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+    session.beginTransaction();
+    
+    // Attempt to get the class and quiz
+    Class tempClass = (Class) session.get(Class.class, class_uid);
+    Quiz tempQuiz = (Quiz) session.get(Quiz.class, quiz_uid);
+    if (tempClass == null) {
+      return ("Class is not available");
+    } else if (tempQuiz == null) {
+      return ("Quiz is not available");
+    }
+    
+    ClassQuizIdentifier classQuizPair = new ClassQuizIdentifier(class_uid,
+        quiz_uid);
+    
+    if (activeClassQuizContainer.contains(classQuizPair)) {
+      return "The quiz is currently in progress";
+    }
+    
+    // Situation when the quiz in question has already been asked
+    if (tempClass.getQuizzes_Unmodifiable().contains(tempQuiz)) {
+      return ("Quiz " + quiz_uid
+          + " is no longer accepting responses for class " + class_uid);
+    } else {
+      return "The Quiz has not been asked for this class yet";
     }
   }
   
@@ -132,43 +173,6 @@ public class StartQuizResource {
     } catch (HibernateException e) {
       session.close();
       throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-    }
-  }
-  
-  class ClassQuizIdentifier {
-    private int class_uid;
-    private int quiz_uid;
-    
-    public ClassQuizIdentifier(int class_uid, int quiz_uid) {
-      this.class_uid = class_uid;
-      this.quiz_uid = quiz_uid;
-    }
-    
-    public int getClassUID() {
-      return class_uid;
-    }
-    
-    public int getQuizUID() {
-      return quiz_uid;
-    }
-    
-    @Override
-    public boolean equals(Object other) {
-      if (this == other) return true;
-      if (!(other instanceof ClassQuizIdentifier)) return false;
-      
-      final ClassQuizIdentifier tempID = (ClassQuizIdentifier) other;
-      if (tempID.getClassUID() == getClassUID()
-          && tempID.getQuizUID() == getQuizUID()) {
-        return true;
-      }
-      return false;
-    }
-    
-    @Override
-    public int hashCode() {
-      
-      return getClassUID() * 127 + getQuizUID();
     }
   }
 }

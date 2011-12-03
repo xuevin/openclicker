@@ -93,7 +93,8 @@ public class StudentTest {
     
     Quiz quiz = new Quiz(Topic.English, Type.MC, "FOO");
     AvailableChoice choice = new AvailableChoice("Grapes");
-    QuizResponse quizResponse = new QuizResponse(quiz, choice, new Date());
+    Class english102 = new Class("English 102");
+    QuizResponse quizResponse = new QuizResponse(english102,quiz, choice, new Date());
     student1.addQuizReponse(quizResponse);
     
     assertEquals(student1.getQuizReponses().size(), 1);
@@ -103,7 +104,8 @@ public class StudentTest {
   public void testRemoveQuizResponse() {
     Quiz quiz = new Quiz(Topic.English, Type.MC, "FOO");
     AvailableChoice choice = new AvailableChoice("Grapes");
-    QuizResponse quizResponse = new QuizResponse(quiz, choice, new Date());
+    Class english102 = new Class("English 102");
+    QuizResponse quizResponse = new QuizResponse(english102,quiz, choice, new Date());
     student1.addQuizReponse(quizResponse);
     assertEquals(student1.getQuizReponses().size(), 1);
     student1.removeQuizResponse(quizResponse);

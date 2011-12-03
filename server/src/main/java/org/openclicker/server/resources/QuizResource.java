@@ -62,6 +62,7 @@ public class QuizResource {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
   }
+  
   @GET
   @Path("/{quiz_uid_text}/choices")
   @Produces("application/json")
@@ -77,9 +78,6 @@ public class QuizResource {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
   }
-  
-  
-  
   
   @POST
   @Consumes("application/json")
@@ -146,7 +144,7 @@ public class QuizResource {
     return topic;
   }
   
-  private static JSONObject toJSON(Quiz quiz) {
+  public static JSONObject toJSON(Quiz quiz) {
     JSONObject json = new JSONObject();
     json.put("quiz_uid", quiz.getQuiz_uid());
     json.put("question", quiz.getQuestion());
@@ -154,11 +152,20 @@ public class QuizResource {
     json.put("type", quiz.getType());
     return json;
   }
+  
+  public static JSONArray toJSON(Collection<Quiz> listOfQuizes) {
+    JSONArray array = new JSONArray();
+    for (Quiz quiz : listOfQuizes) {
+      array.add(toJSON(quiz));
+    }
+    return array;
+  }
+  
   private static JSONObject toJSON(Collection<Integer> list) {
     JSONObject json = new JSONObject();
     
     JSONArray temp = new JSONArray();
-    for(Integer i:list){
+    for (Integer i : list) {
       temp.add(i);
     }
     json.put("choices", temp);
@@ -177,19 +184,19 @@ public class QuizResource {
           + " is not available");
     }
   }
-
-  private Collection<Integer> fetchQuizAnswersByUID(Integer quiz_uid) throws EmptyValueException {
+  
+  private Collection<Integer> fetchQuizAnswersByUID(Integer quiz_uid)
+      throws EmptyValueException {
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     session.beginTransaction();
     Quiz tempQuiz = (Quiz) session.get(Quiz.class, quiz_uid);
     HashSet<Integer> allAnswers = new HashSet<Integer>();
     
-    
     if (tempQuiz != null) {
-      for(AvailableChoice choice:tempQuiz.getAnswers_Unmodifiable()){
+      for (AvailableChoice choice : tempQuiz.getAnswers_Unmodifiable()) {
         allAnswers.add(choice.getChoice_uid());
       }
-      session.close(); 
+      session.close();
       return allAnswers;
     } else {
       session.close();
@@ -197,18 +204,19 @@ public class QuizResource {
           + " is not available");
     }
   }
-  private Collection<Integer> fetchQuizChoicesByUID(Integer quiz_uid) throws EmptyValueException {
+  
+  private Collection<Integer> fetchQuizChoicesByUID(Integer quiz_uid)
+      throws EmptyValueException {
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     session.beginTransaction();
     Quiz tempQuiz = (Quiz) session.get(Quiz.class, quiz_uid);
     HashSet<Integer> allAnswers = new HashSet<Integer>();
     
-    
     if (tempQuiz != null) {
-      for(AvailableChoice choice:tempQuiz.getChoices_Unmodifiable()){
+      for (AvailableChoice choice : tempQuiz.getChoices_Unmodifiable()) {
         allAnswers.add(choice.getChoice_uid());
       }
-      session.close(); 
+      session.close();
       return allAnswers;
     } else {
       session.close();

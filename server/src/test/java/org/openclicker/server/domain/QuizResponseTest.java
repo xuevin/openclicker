@@ -17,6 +17,7 @@ public class QuizResponseTest {
   private Date todaysDate;
   private AvailableChoice choice;
   private Quiz quiz;
+  private Class class_taken;
   
   @Before
   public void setUp() {
@@ -25,7 +26,8 @@ public class QuizResponseTest {
     todaysDate = new Date();
     choice = new AvailableChoice("Foobar");
     quiz = new Quiz(Topic.English, Type.MC, "What is foo?");
-    quizResponse2 = new QuizResponse(quiz, choice, todaysDate);
+    class_taken = new Class("English 100");
+    quizResponse2 = new QuizResponse(class_taken, quiz, choice, todaysDate);
   }
   
   @Test
@@ -40,7 +42,7 @@ public class QuizResponseTest {
   
   @Test
   public void testSetQuiz() {
-  
+    
     quizResponse1.setQuiz(quiz);
     assertEquals(quiz, quizResponse1.getQuiz());
   }
@@ -56,7 +58,7 @@ public class QuizResponseTest {
   public void testSetDate_taken() {
     Date date = new Date();
     quizResponse2.setDate_taken(date);
-    assertEquals(date,quizResponse2.getDate_taken());
+    assertEquals(date, quizResponse2.getDate_taken());
   }
   
   @Test
@@ -73,19 +75,32 @@ public class QuizResponseTest {
   
   @Test
   public void testGetSelected_choice() {
-    assertEquals(null,quizResponse1.getQuiz());
-    assertEquals(choice,quizResponse2.getSelected_choice());
+    assertEquals(null, quizResponse1.getQuiz());
+    assertEquals(choice, quizResponse2.getSelected_choice());
   }
   
   @Test
-  public void testEquals(){
-    assertThat(quizResponse1,not(equalTo(quizResponse2)));
+  public void testSetClass() {
+    quizResponse1.setClass_taken(class_taken);
+    assertEquals(class_taken, quizResponse1.getClass_taken());
+  }
+  
+  @Test
+  public void testGetClass() {
+    assertEquals(null, quizResponse1.getClass_taken());
+    assertEquals(class_taken, quizResponse2.getClass_taken());
+  }
+  
+  @Test
+  public void testEquals() {
+    assertThat(quizResponse1, not(equalTo(quizResponse2)));
     
     quizResponse1.setQuiz(quiz);
     quizResponse1.setSelected_choice(choice);
     quizResponse1.setDate_taken(todaysDate);
+    quizResponse1.setClass_taken(class_taken);
     assertEquals(quizResponse1, quizResponse2);
-
+    
   }
   
 }

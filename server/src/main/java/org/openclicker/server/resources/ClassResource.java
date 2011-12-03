@@ -1,7 +1,5 @@
 package org.openclicker.server.resources;
 
-import java.util.Collection;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -18,7 +16,6 @@ import net.sf.json.JSONSerializer;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.openclicker.server.domain.Class;
-import org.openclicker.server.domain.Student;
 import org.openclicker.server.util.EmptyValueException;
 import org.openclicker.server.util.HibernateUtil;
 import org.slf4j.Logger;
@@ -33,8 +30,8 @@ public class ClassResource {
   @Path("/{class_uid_text}")
   @Produces("application/json")
   public String getClass(@PathParam("class_uid_text") String class_uid_text) {
-    Integer class_uid = Integer.parseInt((String) class_uid_text);
     try {
+      Integer class_uid = Integer.parseInt((String) class_uid_text);
       temp = fetchClass(class_uid);
     } catch (EmptyValueException e) {
       logger.warn(e.getMessage());
@@ -49,10 +46,10 @@ public class ClassResource {
   @GET
   @Path("/{class_uid_text}/students")
   @Produces("application/json")
-  public String getStudents(@PathParam("class_uid_text") String class_uid_text) {
+  public String getAllStudents(@PathParam("class_uid_text") String class_uid_text) {
     try {
       Integer class_uid = Integer.parseInt(class_uid_text);
-      return getJSON(class_uid).toString();
+      return getJSONArrayOfAllStudents(class_uid).toString();
     } catch (EmptyValueException e) {
       logger.warn(e.getMessage());
       throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -61,6 +58,41 @@ public class ClassResource {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
   }
+  
+  @GET
+  @Path("/{class_uid_text}/quiz")
+  @Produces("application/json")
+  public String getAllQuizes(@PathParam("class_uid_text") String class_uid_text) {
+    try {
+      Integer class_uid = Integer.parseInt(class_uid_text);
+      return getJSONArrayOfAllQuizzes(class_uid).toString();
+    } catch (EmptyValueException e) {
+      logger.warn(e.getMessage());
+      throw new WebApplicationException(Response.Status.NOT_FOUND);
+    } catch (NumberFormatException e) {
+      logger.warn(e.getMessage());
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+  }
+  
+  private JSONArray getJSONArrayOfAllQuizzes(int class_uid) throws EmptyValueException {
+    
+   Class tempClass;
+    
+    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+    session.beginTransaction();
+    tempClass = (Class) session.get(Class.class, class_uid);
+    
+    if (tempClass == null) {
+      throw new EmptyValueException("class_uid " + class_uid
+          + " is not available");
+    }
+    JSONArray foo = QuizResource.toJSON(tempClass.getQuizzes_Unmodifiable());
+    session.close();
+    
+    return(foo);
+  }
+  
 
   @POST
   @Consumes("application/json")
@@ -75,11 +107,9 @@ public class ClassResource {
     }
   }
   
-  private JSONObject getJSON(int class_uid) throws EmptyValueException {
+  private JSONArray getJSONArrayOfAllStudents(int class_uid) throws EmptyValueException {
     
     Class tempClass;
-    
-    JSONObject object = null;
     
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     session.beginTransaction();
@@ -89,12 +119,10 @@ public class ClassResource {
       throw new EmptyValueException("class_uid " + class_uid
           + " is not available");
     }
-    tempClass.getStudents_Unmodifiable();
-    object = toJSON(tempClass.getStudents_Unmodifiable());
-    
+    JSONArray foo = StudentResource.toJSON(tempClass.getStudents_Unmodifiable());
     session.close();
-    return object;
     
+    return(foo);
   }
   
   
@@ -124,18 +152,9 @@ public class ClassResource {
     
   }
   
-  private static JSONObject toJSON(Collection<Student> studentsUnmodifiable) {
-    JSONObject object = new JSONObject();
-    JSONArray array = new JSONArray();
-    
-    for (Student student : studentsUnmodifiable) {
-      array.add(student.getStudent_uid());
-    }
-    object.put("student_uids", array);
-    return object;
-  }
 
-  private static JSONObject toJSON(Class uniqueClass) {
+
+  public static JSONObject toJSON(Class uniqueClass) {
     JSONObject json = new JSONObject();
     json.put("class_uid", uniqueClass.getClass_uid());
     json.put("name", uniqueClass.getClass_name());

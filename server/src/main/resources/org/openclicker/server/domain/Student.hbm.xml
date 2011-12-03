@@ -26,9 +26,10 @@
 				<many-to-one name="quiz" class="Quiz" column="quiz_uid" />
 				<many-to-one name="selected_choice" class="AvailableChoice"
 					column="selected_choice_uid" />
+				<many-to-one name="class_taken" class="Class"
+					column="class_uid" />
 				<property name="date_taken" />
 			</composite-element>
-
 		</set>
 	</class>
 

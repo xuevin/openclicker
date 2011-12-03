@@ -1,5 +1,7 @@
 package org.openclicker.server.resources;
 
+import java.util.Collection;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -9,6 +11,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
@@ -81,11 +84,18 @@ public class AvailableChoiceResource {
     }
   }
   
-  private static JSONObject toJSON(AvailableChoice choice) {
+  public static JSONObject toJSON(AvailableChoice choice) {
     JSONObject json = new JSONObject();
     json.put("choice_uid", choice.getChoice_uid());
     json.put("description", choice.getDescription());
     return json;
+  }
+  public static JSONArray toJSON(Collection<AvailableChoice> choices) {
+    JSONArray arrayOfJSON = new JSONArray();
+    for(AvailableChoice choice:choices){
+      arrayOfJSON.add(toJSON(choice));
+    }
+    return arrayOfJSON;
   }
   
   private AvailableChoice fetchAvailableChoice(int choice_uid)

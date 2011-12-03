@@ -12,10 +12,13 @@ public class QuizResponse implements Serializable {
   private Date date_taken;
   private Quiz quiz;
   private AvailableChoice selected_choice;
+  private Class class_taken;
+
   
   public QuizResponse() {}
   
-  public QuizResponse(Quiz quiz, AvailableChoice choice, Date dateTaken) {
+  public QuizResponse(Class class_taken, Quiz quiz, AvailableChoice choice, Date dateTaken) {
+    this.setClass_taken(class_taken);
     this.setQuiz(quiz);
     this.setSelected_choice(choice);
     this.setDate_taken(dateTaken);
@@ -60,7 +63,8 @@ public class QuizResponse implements Serializable {
     try {
       if (tempResponse.getQuiz().equals(getQuiz())
           && tempResponse.getSelected_choice().equals(getSelected_choice())
-          && tempResponse.getDate_taken().equals(getDate_taken())) {
+          && tempResponse.getDate_taken().equals(getDate_taken())
+          && tempResponse.getClass_taken().equals(getClass_taken())) {
         return true;
       }
     } catch (NullPointerException e) {
@@ -75,9 +79,16 @@ public class QuizResponse implements Serializable {
   @Override
   public int hashCode() {
     int result;
-    result = quiz.hashCode() * 26 + selected_choice.getChoice_uid()
+    result = quiz.hashCode() * 26 + selected_choice.getChoice_uid() + class_taken.getClass_uid()
         + date_taken.hashCode();
     return result;
   }
-  
+
+  public void setClass_taken(Class class_taken) {
+    this.class_taken = class_taken;
+  }
+
+  public Class getClass_taken() {
+    return class_taken;
+  }
 }

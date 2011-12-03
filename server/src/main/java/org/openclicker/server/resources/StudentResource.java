@@ -1,5 +1,9 @@
 package org.openclicker.server.resources;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -9,11 +13,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.openclicker.server.domain.QuizResponse;
 import org.openclicker.server.domain.Student;
 import org.openclicker.server.domain.Student.Gender;
 import org.openclicker.server.util.EmptyValueException;
@@ -21,9 +27,8 @@ import org.openclicker.server.util.HibernateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 @Path("/student")
-public class StudentResource{
+public class StudentResource {
   
   Logger logger = LoggerFactory.getLogger(this.getClass());
   
@@ -59,6 +64,46 @@ public class StudentResource{
     
   }
   
+  @GET
+  @Produces("application/json")
+  @Path("/{student_uid_text}/class/{class_uid_text}/quiz")
+  public String getAllQuizesTakenInClass(
+      @PathParam("student_uid_text") String student_uid_text,
+      @PathParam("class_uid_text") String class_uid_text) {
+    try {
+      int class_uid = Integer.parseInt(class_uid_text);
+      int student_uid = Integer.parseInt(student_uid_text);
+      
+      return getJSONArrayOfQuizResponses(student_uid, class_uid).toString();
+      
+    } catch (EmptyValueException e) {
+      logger.warn(e.getMessage());
+      throw new WebApplicationException(Response.Status.NOT_FOUND);
+    } catch (NumberFormatException e) {
+      logger.warn(e.getMessage());
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+  }
+
+  public static JSONObject toJSON(Student student) {
+    
+    JSONObject object = new JSONObject();
+    object.put("student_uid", student.getStudent_uid());
+    object.put("gender", student.getGender());
+    object.put("email", student.getEmail_address());
+    object.put("first_name", student.getFirst_name());
+    object.put("last_name", student.getLast_name());
+    return object;
+  }
+
+  public static JSONArray toJSON(Collection<Student> studentsUnmodifiable) {
+    JSONArray array = new JSONArray();
+    for (Student student : studentsUnmodifiable) {
+      array.add(toJSON(student));
+    }
+    return array;
+  }
+
   private int addNewStudent(JSONObject json) {
     int id;
     
@@ -97,17 +142,6 @@ public class StudentResource{
     }
   }
   
-  private static JSONObject toJSON(Student student) {
-    
-    JSONObject object = new JSONObject();
-    object.put("student_uid", student.getStudent_uid());
-    object.put("gender", student.getGender());
-    object.put("email", student.getEmail_address());
-    object.put("first_name", student.getFirst_name());
-    object.put("last_name", student.getLast_name());
-    return object;
-  }
-  
   private Student fetchStudent(int student_uid) throws EmptyValueException {
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     session.beginTransaction();
@@ -118,6 +152,48 @@ public class StudentResource{
     } else {
       throw new EmptyValueException("student_uid " + student_uid
           + " is not available");
+    }
+  }
+  
+  private JSONArray getJSONArrayOfResponses(Collection<QuizResponse> responses) {
+    JSONArray array = new JSONArray();
+    for (QuizResponse instance : responses) {
+      JSONObject object = new JSONObject();
+      object.put("quiz_uid", instance.getQuiz().getQuiz_uid());
+      object.put("select_choice_uid", instance.getSelected_choice()
+          .getChoice_uid());
+      object.put("class_uid", instance.getClass_taken().getClass_uid());
+      array.add(object);
+    }
+    return array;
+  }
+  
+  private JSONArray getJSONArrayOfQuizResponses(int student_uid, int class_uid)
+      throws EmptyValueException {
+    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+    session.beginTransaction();
+    Student tempStudent = (Student) session.get(Student.class, student_uid);
+    if (tempStudent == null) {
+      session.close();
+      throw new EmptyValueException("Such a student does not exist");
+    } else {
+      HashSet<QuizResponse> quizesResponses = new HashSet<QuizResponse>();
+      Set<QuizResponse> allQuizResponses = tempStudent
+          .getQuizResponse_Unmodifiable();
+      if (allQuizResponses.size() == 0) {
+        session.close();
+        throw new EmptyValueException("Student never took a quiz in this class");
+      }
+      //Iterate through all the quiz respones and collect all the quizzes which come from the same class
+      //TODO find a better way to do this.
+      for (QuizResponse instance : allQuizResponses) {
+        if (instance.getClass_taken().getClass_uid() == class_uid) {
+          quizesResponses.add(instance);
+        }
+      }
+      JSONArray returnJSONArray = getJSONArrayOfResponses(quizesResponses);
+      session.close();
+      return returnJSONArray;
     }
     
   }
