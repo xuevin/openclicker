@@ -16,7 +16,7 @@ public class Class implements Serializable {
   private int class_uid;
   private String class_name;
   private Set<Student> students = new HashSet<Student>();
-  private Set<Quiz> quizes = new HashSet<Quiz>();
+  private Set<Quiz> quizzes = new HashSet<Quiz>();
   
   public Class() {
 
@@ -53,12 +53,12 @@ public class Class implements Serializable {
   }
   
   public void addQuizes(Quiz quiz) {
-    this.getQuizes().add(quiz);
+    this.getQuizzes().add(quiz);
     quiz.getClasses().add(this);
   }
   
   public void removeQuizes(Quiz quiz) {
-    this.getQuizes().remove(quiz);
+    this.getQuizzes().remove(quiz);
     quiz.getClasses().remove(this);
     
   }
@@ -71,12 +71,12 @@ public class Class implements Serializable {
     return students;
   }
   
-  protected void setQuizes(Set<Quiz> quizes) {
-    this.quizes = quizes;
+  protected void setQuizzes(Set<Quiz> quizes) {
+    this.quizzes = quizes;
   }
   
-  protected Set<Quiz> getQuizes() {
-    return quizes;
+  protected Set<Quiz> getQuizzes() {
+    return quizzes;
   }
   
   @Override
@@ -104,6 +104,6 @@ public class Class implements Serializable {
     return Collections.unmodifiableCollection(students);
   }
   public Collection<Quiz> getQuizzes_Unmodifiable(){
-    return Collections.unmodifiableCollection(quizes);
+    return Collections.unmodifiableCollection(quizzes);
   }  
 }

@@ -10,10 +10,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
@@ -24,6 +26,9 @@ import org.openclicker.server.domain.Student;
 import org.openclicker.server.domain.Student.Gender;
 import org.openclicker.server.util.EmptyValueException;
 import org.openclicker.server.util.HibernateUtil;
+import org.openclicker.server.util.serverExceptions.WebBadRequestException;
+import org.openclicker.server.util.serverExceptions.WebNotFoundException;
+import org.openclicker.server.util.serverExceptions.WebServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,10 +47,10 @@ public class StudentResource {
       return toJSON(fetchStudent(student_uid)).toString();
     } catch (EmptyValueException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
+      throw new WebNotFoundException(e);
     } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException(e);
     }
   }
   
@@ -55,11 +60,15 @@ public class StudentResource {
     
     try {
       JSONObject json = (JSONObject) JSONSerializer.toJSON(context);
-      addNewStudent(json);
-      return Response.ok().entity("").build();
+      int id = addNewStudent(json);
+      return Response.status(Status.ACCEPTED).entity(
+          "New Student " + id  + " added\n").type(MediaType.TEXT_PLAIN).build();
     } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException(e);
+    } catch (JSONException e) {
+      logger.warn(e.getMessage());
+      throw new WebBadRequestException(e);
     }
     
   }
@@ -78,13 +87,13 @@ public class StudentResource {
       
     } catch (EmptyValueException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
+      throw new WebNotFoundException(e);
     } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException(e);
     }
   }
-
+  
   public static JSONObject toJSON(Student student) {
     
     JSONObject object = new JSONObject();
@@ -95,7 +104,7 @@ public class StudentResource {
     object.put("last_name", student.getLast_name());
     return object;
   }
-
+  
   public static JSONArray toJSON(Collection<Student> studentsUnmodifiable) {
     JSONArray array = new JSONArray();
     for (Student student : studentsUnmodifiable) {
@@ -103,7 +112,7 @@ public class StudentResource {
     }
     return array;
   }
-
+  
   private int addNewStudent(JSONObject json) {
     int id;
     
@@ -115,7 +124,7 @@ public class StudentResource {
     } else if (genderAsString.toLowerCase().equals("f")) {
       gender = Gender.F;
     } else {
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException("Gender should only be M or F");
     }
     
     // Parse Remaining Options
@@ -138,7 +147,7 @@ public class StudentResource {
       return id;
     } catch (HibernateException e) {
       session.close();
-      throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+      throw new WebServerException(e);
     }
   }
   
@@ -184,8 +193,9 @@ public class StudentResource {
         session.close();
         throw new EmptyValueException("Student never took a quiz in this class");
       }
-      //Iterate through all the quiz respones and collect all the quizzes which come from the same class
-      //TODO find a better way to do this.
+      // Iterate through all the quiz respones and collect all the quizzes which
+      // come from the same class
+      // TODO find a better way to do this.
       for (QuizResponse instance : allQuizResponses) {
         if (instance.getClass_taken().getClass_uid() == class_uid) {
           quizesResponses.add(instance);

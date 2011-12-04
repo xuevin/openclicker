@@ -7,8 +7,11 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
@@ -22,6 +25,9 @@ import org.openclicker.server.domain.Student;
 import org.openclicker.server.resources.containers.ClassQuizIdentifier;
 import org.openclicker.server.util.EmptyValueException;
 import org.openclicker.server.util.HibernateUtil;
+import org.openclicker.server.util.serverExceptions.WebBadRequestException;
+import org.openclicker.server.util.serverExceptions.WebNotFoundException;
+import org.openclicker.server.util.serverExceptions.WebServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +38,8 @@ public class QuizResponseResource {
   @POST
   @Consumes("application/json")
   public Response addResponse(
-      @PathParam("quiz_uid_text") String student_uid_text,
-      @PathParam("student_uid_text") String quiz_uid_text,
+      @PathParam("quiz_uid_text") String quiz_uid_text,
+      @PathParam("student_uid_text") String student_uid_text,
       @PathParam("class_uid_text") String class_uid_text, String context) {
     try {
       JSONObject json = (JSONObject) JSONSerializer.toJSON(context);
@@ -41,20 +47,25 @@ public class QuizResponseResource {
       int student_uid = Integer.parseInt(student_uid_text);
       int class_uid = Integer.parseInt(class_uid_text);
       addNewResponse(class_uid, quiz_uid, student_uid, json);
-      return Response.ok().entity("").build();
+      return Response.status(Status.ACCEPTED).entity(
+          "New Response for class " + class_uid + ", quiz " + quiz_uid
+              + ", student " + student_uid + " added\n").type(
+          MediaType.TEXT_PLAIN).build();
     } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException(e);
     } catch (EmptyValueException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
+      throw new WebNotFoundException(e);
+    } catch (JSONException e) {
+      throw new WebBadRequestException(e);
     }
   }
   
   private void addNewResponse(int classUid, int quizUid, int studentUid,
       JSONObject json) throws EmptyValueException {
-    ClassQuizIdentifier foo = new ClassQuizIdentifier(classUid, quizUid);
-    if (StartQuizResource.activeClassQuizContainer.contains(foo)) {
+    ClassQuizIdentifier identifier = new ClassQuizIdentifier(classUid, quizUid);
+    if (StartQuizResource.activeClassQuizContainer.contains(identifier)) {
       
       // Begin Hibernate Session
       Session session = HibernateUtil.getSessionFactory().getCurrentSession();
@@ -66,6 +77,7 @@ public class QuizResponseResource {
         Class tempClass = (Class) session.get(Class.class, classUid);
         Quiz tempQuiz = (Quiz) session.get(Quiz.class, quizUid);
         Student tempStudent = (Student) session.get(Student.class, studentUid);
+        
         if (tempClass == null) {
           throw new EmptyValueException("Class is not available");
         } else if (tempQuiz == null) {
@@ -74,12 +86,14 @@ public class QuizResponseResource {
           throw new EmptyValueException("Student is not available");
         }
         
-        String response = json.get("response").toString();
+        String response = json.getString("response");
         AvailableChoice tempChoice;
-        if (tempQuiz.getType().equals(Quiz.Type.MC)) {
+        logger.info(tempQuiz.getType());
+        logger.info(response);
+        if (tempQuiz.getType().equalsIgnoreCase((Quiz.Type.MC).toString())) {
           int choiceUID = Integer.parseInt(response);
-          tempChoice = (AvailableChoice) session.get(AvailableChoice.class,
-              choiceUID);
+          logger.info(choiceUID+"");
+          tempChoice = (AvailableChoice) session.get(AvailableChoice.class,choiceUID);
           
         } else {
           tempChoice = new AvailableChoice(response);
@@ -87,13 +101,15 @@ public class QuizResponseResource {
         
         QuizResponse newQuizResponse = new QuizResponse(tempClass, tempQuiz,
             tempChoice, new Date());
-        session.save(tempQuiz);
+        tempStudent.addQuizReponse(newQuizResponse);
+        
+        session.save(tempStudent);
         logger.info("QuizResponse successfully Saved");
-        session.getTransaction().commit();
+//        session.getTransaction().commit();
         
       } catch (HibernateException e) {
         session.close();
-        throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        throw new WebServerException(e);
       }
       
     } else {

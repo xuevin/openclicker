@@ -68,20 +68,20 @@ public class ClassTest {
   
   @Test
   public void testAddQuizes() {
-    assertEquals(0, englishClass1.getQuizes().size());
+    assertEquals(0, englishClass1.getQuizzes().size());
     Quiz quiz = new Quiz();
     englishClass1.addQuizes(quiz);
-    assertEquals(1, englishClass1.getQuizes().size());
+    assertEquals(1, englishClass1.getQuizzes().size());
   }
   
   @Test
   public void testRemoveQuizes() {
-    assertEquals(0, englishClass1.getQuizes().size());
+    assertEquals(0, englishClass1.getQuizzes().size());
     Quiz quiz = new Quiz();
     englishClass1.addQuizes(quiz);
-    assertEquals(1, englishClass1.getQuizes().size());
+    assertEquals(1, englishClass1.getQuizzes().size());
     englishClass1.removeQuizes(quiz);
-    assertEquals(0, englishClass1.getQuizes().size());
+    assertEquals(0, englishClass1.getQuizzes().size());
     
   }
   
@@ -100,13 +100,13 @@ public class ClassTest {
   @Test
   public void testSetQuizes() {
     Set<Quiz> foo = new HashSet<Quiz>();
-    englishClass1.setQuizes(foo);
-    assertEquals(foo,englishClass1.getQuizes());
+    englishClass1.setQuizzes(foo);
+    assertEquals(foo,englishClass1.getQuizzes());
   }
   
   @Test
   public void testGetQuizes() {
-    assertEquals(0, englishClass1.getQuizes().size());
+    assertEquals(0, englishClass1.getQuizzes().size());
   }
   
   @Test

@@ -17,7 +17,7 @@
 			<many-to-many column="student_uid" class="Student" />
 		</set>
 		
-		<set name="quizes" table="GivesOut" inverse="true">
+		<set name="quizzes" table="GivesOut" inverse="true">
 			<key column="class_uid" />
 			<many-to-many column="quiz_uid" class="Quiz" />
 		</set>

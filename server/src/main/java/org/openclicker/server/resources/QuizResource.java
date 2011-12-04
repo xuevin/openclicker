@@ -1,5 +1,6 @@
 package org.openclicker.server.resources;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -9,10 +10,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
@@ -24,6 +27,9 @@ import org.openclicker.server.domain.Quiz.Topic;
 import org.openclicker.server.domain.Quiz.Type;
 import org.openclicker.server.util.EmptyValueException;
 import org.openclicker.server.util.HibernateUtil;
+import org.openclicker.server.util.serverExceptions.WebBadRequestException;
+import org.openclicker.server.util.serverExceptions.WebNotFoundException;
+import org.openclicker.server.util.serverExceptions.WebServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,15 +41,15 @@ public class QuizResource {
   @Path("/{quiz_uid_text}")
   @Produces("application/json")
   public String getQuiz(@PathParam("quiz_uid_text") String quiz_uid_text) {
-    Integer quiz_uid = Integer.parseInt(quiz_uid_text);
     try {
+      Integer quiz_uid = Integer.parseInt(quiz_uid_text);
       return toJSON(fetchQuiz(quiz_uid)).toString();
     } catch (EmptyValueException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
+      throw new WebNotFoundException(e);
     } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException(e);
     }
   }
   
@@ -53,13 +59,13 @@ public class QuizResource {
   public String getQuizAnswers(@PathParam("quiz_uid_text") String quiz_uid_text) {
     Integer quiz_uid = Integer.parseInt(quiz_uid_text);
     try {
-      return toJSON(fetchQuizAnswersByUID(quiz_uid)).toString();
+      return fetchQuizAnswersByUID(quiz_uid).toString();
     } catch (EmptyValueException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
+      throw new WebNotFoundException(e);
     } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException(e);
     }
   }
   
@@ -69,13 +75,13 @@ public class QuizResource {
   public String getQuizChoices(@PathParam("quiz_uid_text") String quiz_uid_text) {
     Integer quiz_uid = Integer.parseInt(quiz_uid_text);
     try {
-      return toJSON(fetchQuizChoicesByUID(quiz_uid)).toString();
+      return fetchQuizChoicesByUID(quiz_uid).toString();
     } catch (EmptyValueException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
+      throw new WebNotFoundException(e);
     } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException(e);
     }
   }
   
@@ -84,11 +90,16 @@ public class QuizResource {
   public Response addQuiz(String context) {
     try {
       JSONObject json = (JSONObject) JSONSerializer.toJSON(context);
-      addNewQuiz(json);
-      return Response.ok().entity("").build();
+      int id = addNewQuiz(json);
+      return Response.status(Status.ACCEPTED).entity(
+          "New Quiz " + id + " added\n").type(
+          MediaType.TEXT_PLAIN).build();
     } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException(e);
+    } catch (JSONException e) {
+      logger.warn(e.getMessage());
+      throw new WebBadRequestException(e);
     }
   }
   
@@ -99,13 +110,33 @@ public class QuizResource {
     Topic topic = parseTopicText(json.getString("topic"));
     Type type = parseTypeText(json.getString("type"));
     String question = json.getString("question");
+    JSONArray choices = json.getJSONArray("choices");
+    
+    //Add all answers to a ArrayList for convenience
+    JSONArray answerIndices = json.getJSONArray("answers");
+    ArrayList<Integer> answers = new ArrayList<Integer>();
+    for(int i = 0;i<answerIndices.size();i++){
+      answers.add(answerIndices.getInt(i));
+    }
     
     // Begin Hibernate Session
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     try {
       session.beginTransaction();
-      // Add a quiz and commit
+      // Add a quiz 
       Quiz tempQuiz = new Quiz(topic, type, question);
+      
+      //Add the corresponding answers
+      for(int i = 0;i<choices.size();i++){
+        AvailableChoice choice = new AvailableChoice(choices.getString(i));
+        session.save(choice);
+        tempQuiz.addChoice(choice);
+        if(answers.contains(i)){
+          tempQuiz.addAnswer(choice);
+        }
+      }
+      
+      
       session.save(tempQuiz);
       
       id = tempQuiz.getQuiz_uid();
@@ -115,7 +146,7 @@ public class QuizResource {
       return id;
     } catch (HibernateException e) {
       session.close();
-      throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+      throw new WebServerException(e);
     }
     
   }
@@ -161,16 +192,6 @@ public class QuizResource {
     return array;
   }
   
-  private static JSONObject toJSON(Collection<Integer> list) {
-    JSONObject json = new JSONObject();
-    
-    JSONArray temp = new JSONArray();
-    for (Integer i : list) {
-      temp.add(i);
-    }
-    json.put("choices", temp);
-    return json;
-  }
   
   private Quiz fetchQuiz(int quiz_uid) throws EmptyValueException {
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
@@ -185,19 +206,15 @@ public class QuizResource {
     }
   }
   
-  private Collection<Integer> fetchQuizAnswersByUID(Integer quiz_uid)
+  private JSONArray fetchQuizAnswersByUID(Integer quiz_uid)
       throws EmptyValueException {
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     session.beginTransaction();
     Quiz tempQuiz = (Quiz) session.get(Quiz.class, quiz_uid);
-    HashSet<Integer> allAnswers = new HashSet<Integer>();
-    
     if (tempQuiz != null) {
-      for (AvailableChoice choice : tempQuiz.getAnswers_Unmodifiable()) {
-        allAnswers.add(choice.getChoice_uid());
-      }
+      JSONArray a = AvailableChoiceResource.toJSON(tempQuiz.getAnswers_Unmodifiable());
       session.close();
-      return allAnswers;
+      return a;
     } else {
       session.close();
       throw new EmptyValueException("quiz_uid " + quiz_uid
@@ -205,17 +222,14 @@ public class QuizResource {
     }
   }
   
-  private Collection<Integer> fetchQuizChoicesByUID(Integer quiz_uid)
+  private JSONArray fetchQuizChoicesByUID(Integer quiz_uid)
       throws EmptyValueException {
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     session.beginTransaction();
     Quiz tempQuiz = (Quiz) session.get(Quiz.class, quiz_uid);
-    HashSet<Integer> allAnswers = new HashSet<Integer>();
     
     if (tempQuiz != null) {
-      for (AvailableChoice choice : tempQuiz.getChoices_Unmodifiable()) {
-        allAnswers.add(choice.getChoice_uid());
-      }
+      JSONArray allAnswers = AvailableChoiceResource.toJSON(tempQuiz.getChoices_Unmodifiable());
       session.close();
       return allAnswers;
     } else {

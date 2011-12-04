@@ -8,10 +8,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
@@ -20,6 +22,9 @@ import org.hibernate.Session;
 import org.openclicker.server.domain.AvailableChoice;
 import org.openclicker.server.util.EmptyValueException;
 import org.openclicker.server.util.HibernateUtil;
+import org.openclicker.server.util.serverExceptions.WebBadRequestException;
+import org.openclicker.server.util.serverExceptions.WebNotFoundException;
+import org.openclicker.server.util.serverExceptions.WebServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,10 +43,10 @@ public class AvailableChoiceResource {
       temp = fetchAvailableChoice(choice_uid);
     } catch (EmptyValueException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
-    } catch (NumberFormatException e)  {
+      throw new WebNotFoundException(e);
+    } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException(e);
     }
     return toJSON(temp).toString();
   }
@@ -51,11 +56,16 @@ public class AvailableChoiceResource {
   public Response addChoice(String context) {
     try {
       JSONObject json = (JSONObject) JSONSerializer.toJSON(context);
-      addNewChoice(json);
-      return Response.ok().entity("").build();
+      int id = addNewChoice(json);
+      return Response.status(Status.ACCEPTED).entity(
+          "New Response for choice " + id + " added\n").type(
+          MediaType.TEXT_PLAIN).build();
     } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException(e);
+    } catch (JSONException e) {
+      logger.warn(e.getMessage());
+      throw new WebBadRequestException(e);
     }
     
   }
@@ -70,6 +80,7 @@ public class AvailableChoiceResource {
     try {
       session.beginTransaction();
       // Add a Choice and commit
+      
       AvailableChoice choice = new AvailableChoice(description);
       session.save(choice);
       
@@ -80,7 +91,7 @@ public class AvailableChoiceResource {
       return id;
     } catch (HibernateException e) {
       session.close();
-      throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+      throw new WebServerException(e);
     }
   }
   
@@ -90,9 +101,10 @@ public class AvailableChoiceResource {
     json.put("description", choice.getDescription());
     return json;
   }
+  
   public static JSONArray toJSON(Collection<AvailableChoice> choices) {
     JSONArray arrayOfJSON = new JSONArray();
-    for(AvailableChoice choice:choices){
+    for (AvailableChoice choice : choices) {
       arrayOfJSON.add(toJSON(choice));
     }
     return arrayOfJSON;

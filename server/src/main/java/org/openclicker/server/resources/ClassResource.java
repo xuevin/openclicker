@@ -6,10 +6,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
@@ -18,6 +20,9 @@ import org.hibernate.Session;
 import org.openclicker.server.domain.Class;
 import org.openclicker.server.util.EmptyValueException;
 import org.openclicker.server.util.HibernateUtil;
+import org.openclicker.server.util.serverExceptions.WebNotFoundException;
+import org.openclicker.server.util.serverExceptions.WebBadRequestException;
+import org.openclicker.server.util.serverExceptions.WebServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +40,10 @@ public class ClassResource {
       temp = fetchClass(class_uid);
     } catch (EmptyValueException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
+      throw new WebNotFoundException(e);
     } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException(e);
     }
     return toJSON(temp).toString();
   }
@@ -46,16 +51,17 @@ public class ClassResource {
   @GET
   @Path("/{class_uid_text}/students")
   @Produces("application/json")
-  public String getAllStudents(@PathParam("class_uid_text") String class_uid_text) {
+  public String getAllStudents(
+      @PathParam("class_uid_text") String class_uid_text) {
     try {
       Integer class_uid = Integer.parseInt(class_uid_text);
       return getJSONArrayOfAllStudents(class_uid).toString();
     } catch (EmptyValueException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
+      throw new WebNotFoundException(e);
     } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException(e);
     }
   }
   
@@ -68,16 +74,53 @@ public class ClassResource {
       return getJSONArrayOfAllQuizzes(class_uid).toString();
     } catch (EmptyValueException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
+      throw new WebNotFoundException(e);
     } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException(e);
     }
   }
   
-  private JSONArray getJSONArrayOfAllQuizzes(int class_uid) throws EmptyValueException {
+  @POST
+  @Consumes("application/json")
+  public Response addClass(String context) {
+    try {
+      JSONObject json = (JSONObject) JSONSerializer.toJSON(context);
+      int id = addNewClass(json);
+      return Response.status(Status.ACCEPTED).entity(
+          "New Class " + id  + " added\n").type(MediaType.TEXT_PLAIN).build();
+    } catch (NumberFormatException e) {
+      logger.warn(e.getMessage());
+      throw new WebBadRequestException(e);
+    } catch (JSONException e){
+      throw new WebBadRequestException(e);
+    }
+  }
+  @GET
+  @Path("/{class_uid_text}/students")
+  @Consumes("application/json")
+  public Response addStudentToClass(
+      @PathParam("class_uid_text") String class_uid_text) {
+    try {
+      Integer class_uid = Integer.parseInt(class_uid_text);
+      return null;
+      
+      //return getJSONArrayOfAllStudents(class_uid).toString();
+//    } catch (EmptyValueException e) {
+//      logger.warn(e.getMessage());
+//      throw new WebNotFoundException(e);
+    } catch (NumberFormatException e) {
+      logger.warn(e.getMessage());
+      throw new WebBadRequestException(e);
+    }
+  }
+  
+  
+
+  private JSONArray getJSONArrayOfAllQuizzes(int class_uid)
+      throws EmptyValueException {
     
-   Class tempClass;
+    Class tempClass;
     
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     session.beginTransaction();
@@ -90,24 +133,11 @@ public class ClassResource {
     JSONArray foo = QuizResource.toJSON(tempClass.getQuizzes_Unmodifiable());
     session.close();
     
-    return(foo);
+    return (foo);
   }
   
-
-  @POST
-  @Consumes("application/json")
-  public Response addClass(String context) {
-    try {
-      JSONObject json = (JSONObject) JSONSerializer.toJSON(context);
-      addNewClass(json);
-      return Response.ok().entity("").build();
-    } catch (NumberFormatException e) {
-      logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
-    }
-  }
-  
-  private JSONArray getJSONArrayOfAllStudents(int class_uid) throws EmptyValueException {
+  private JSONArray getJSONArrayOfAllStudents(int class_uid)
+      throws EmptyValueException {
     
     Class tempClass;
     
@@ -119,13 +149,12 @@ public class ClassResource {
       throw new EmptyValueException("class_uid " + class_uid
           + " is not available");
     }
-    JSONArray foo = StudentResource.toJSON(tempClass.getStudents_Unmodifiable());
+    JSONArray foo = StudentResource
+        .toJSON(tempClass.getStudents_Unmodifiable());
     session.close();
     
-    return(foo);
+    return (foo);
   }
-  
-  
   
   private int addNewClass(JSONObject json) {
     int id;
@@ -143,17 +172,15 @@ public class ClassResource {
       id = testClass.getClass_uid();
       session.getTransaction().commit();
       
-      logger.info("Class successfully added");
+      logger.info("Class successfully added: " + id);
       return id;
     } catch (HibernateException e) {
       session.close();
-      throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+      throw new WebServerException(e);
     }
     
   }
   
-
-
   public static JSONObject toJSON(Class uniqueClass) {
     JSONObject json = new JSONObject();
     json.put("class_uid", uniqueClass.getClass_uid());

@@ -39,12 +39,12 @@ public class Quiz implements Serializable{
   
   public void addToClass(Class classToBeAdded) {
     this.getClasses().add(classToBeAdded);
-    classToBeAdded.getQuizes().add(this);
+    classToBeAdded.getQuizzes().add(this);
   }
   
   public void removeFromClass(Class classToBeRemovedFrom) {
     this.getClasses().remove(classToBeRemovedFrom);
-    classToBeRemovedFrom.getQuizes().remove(this);
+    classToBeRemovedFrom.getQuizzes().remove(this);
   }
   
   public void addAnswer(AvailableChoice answerToBeAdded) {

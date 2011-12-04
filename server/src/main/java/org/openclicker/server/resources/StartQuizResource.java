@@ -1,6 +1,7 @@
 package org.openclicker.server.resources;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import javax.ws.rs.GET;
@@ -8,17 +9,27 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.openclicker.server.domain.AvailableChoice;
 import org.openclicker.server.domain.Class;
 import org.openclicker.server.domain.Quiz;
+import org.openclicker.server.domain.QuizResponse;
+import org.openclicker.server.domain.Student;
 import org.openclicker.server.resources.containers.ClassQuizIdentifier;
 import org.openclicker.server.util.EmptyValueException;
 import org.openclicker.server.util.HibernateUtil;
 import org.openclicker.server.util.SetStatusException;
+import org.openclicker.server.util.serverExceptions.WebBadRequestException;
+import org.openclicker.server.util.serverExceptions.WebNotFoundException;
+import org.openclicker.server.util.serverExceptions.WebServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +52,7 @@ public class StartQuizResource {
       
     } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException(e);
     }
     
   }
@@ -51,7 +62,9 @@ public class StartQuizResource {
   public Response start(@PathParam("class_uid_text") String class_uid_text,
       @PathParam("quiz_uid_text") String quiz_uid_text, String context) {
     setStatusOfQuiz(class_uid_text, quiz_uid_text, true);
-    return Response.ok().entity("").build();
+    return Response.status(Status.ACCEPTED).entity(
+        "Quiz " + quiz_uid_text + " Started\n").type(MediaType.TEXT_PLAIN)
+        .build();
     
   }
   
@@ -60,7 +73,30 @@ public class StartQuizResource {
   public Response stop(@PathParam("class_uid_text") String class_uid_text,
       @PathParam("quiz_uid_text") String quiz_uid_text, String context) {
     setStatusOfQuiz(class_uid_text, quiz_uid_text, false);
-    return Response.ok().entity("").build();
+    return Response.status(Status.ACCEPTED).entity(
+        "Quiz " + quiz_uid_text + " Stopped\n").type(MediaType.TEXT_PLAIN)
+        .build();
+  }
+  
+  @GET
+  @Path("/stats")
+  @Produces("application/json")
+  public String getStats(@PathParam("class_uid_text") String class_uid_text,
+      @PathParam("quiz_uid_text") String quiz_uid_text) {
+    
+    try {
+      int class_uid = Integer.parseInt((String) class_uid_text);
+      int quiz_uid = Integer.parseInt(quiz_uid_text);
+      
+      return getQuizStatsAsJSONObj(class_uid, quiz_uid).toString();
+      
+    } catch (EmptyValueException e) {
+      logger.warn(e.getMessage());
+      throw new WebNotFoundException(e);
+    } catch (NumberFormatException e) {
+      logger.warn(e.getMessage());
+      throw new WebBadRequestException(e);
+    }
   }
   
   private void setStatusOfQuiz(String class_uid_text, String quiz_uid_text,
@@ -71,17 +107,17 @@ public class StartQuizResource {
       Integer quiz_uid = Integer.parseInt(quiz_uid_text);
       
       // TODO Set this to true when you want to commit
-      setStatusOfQuiz(class_uid, quiz_uid, acceptResponses, false);
+      setStatusOfQuiz(class_uid, quiz_uid, acceptResponses, true);
       
     } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException(e);
     } catch (EmptyValueException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebNotFoundException(e);
     } catch (SetStatusException e) {
       logger.warn(e.getMessage());
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new WebBadRequestException(e);
     }
   }
   
@@ -113,6 +149,61 @@ public class StartQuizResource {
     } else {
       return "The Quiz has not been asked for this class yet";
     }
+  }
+  
+  private JSONObject getQuizStatsAsJSONObj(int classUid, int quizUid)
+      throws EmptyValueException {
+    
+    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+    session.beginTransaction();
+    Class tempClass = (Class) session.get(Class.class, classUid);
+    Quiz tempQuiz = (Quiz) session.get(Quiz.class, quizUid);
+    
+    // FIXME - THis is a disgusting hack to get the job done.
+    // You should really only be doing one query but this explodes!
+    
+    // Instantiate the choices to zero
+    HashMap<String,Integer> choiceAndCount = new HashMap<String,Integer>();
+    for (AvailableChoice choices : tempQuiz.getChoices_Unmodifiable()) {
+      choiceAndCount.put(choices.getDescription(), 0);
+    }
+    
+    // Tally up the scores
+    Collection<Student> tempStudents = tempClass.getStudents_Unmodifiable();
+    for (Student student : tempStudents) {
+      Collection<QuizResponse> responses = student
+          .getQuizResponse_Unmodifiable();
+      for (QuizResponse response : responses) {
+        if (response.getQuiz().equals(tempQuiz)) {
+          String selectedString = response.getSelected_choice()
+              .getDescription();
+          choiceAndCount.put(selectedString,
+              choiceAndCount.get(selectedString) + 1);
+        }
+      }
+    }
+    
+    // JSON-ify all the choices/count
+    JSONArray choiceArray = new JSONArray();
+    for (String key : choiceAndCount.keySet()) {
+      JSONObject temp = new JSONObject();
+      temp.put("description", key);
+      temp.put("count", choiceAndCount.get(key));
+      choiceArray.add(temp);
+    }
+    // JSON-ify all the answers
+    JSONArray answerArray = new JSONArray();
+    for (AvailableChoice answer : tempQuiz.getAnswers_Unmodifiable()) {
+      answerArray.add(answer.getDescription());
+    }
+    
+    session.close();
+    
+    JSONObject rootObj = new JSONObject();
+    rootObj.put("choices", choiceArray);
+    rootObj.put("answers", answerArray);
+    return rootObj;
+    
   }
   
   protected void setStatusOfQuiz(int class_uid, int quiz_uid,
@@ -172,7 +263,7 @@ public class StartQuizResource {
       }
     } catch (HibernateException e) {
       session.close();
-      throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+      throw new WebServerException(e);
     }
   }
 }
