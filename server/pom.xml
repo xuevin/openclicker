@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openclicker</groupId>
 	<artifactId>server</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<version>0.0.1-SNAPSHOT</version>
 
 	<repositories>
@@ -47,8 +47,56 @@
 					</arguments>
 				</configuration>
 			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>org.openclicker.server.RootServer</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attached</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+							</transformers>
+							
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
+
 	</build>
+
+
+
+
 
 	<properties>
 		<org.springframework.version>3.0.6.RELEASE</org.springframework.version>
@@ -103,7 +151,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-server</artifactId>
+			<artifactId>jersey-bundle</artifactId>
 			<version>1.10</version>
 		</dependency>
 		<dependency>
@@ -116,10 +164,11 @@
 			<artifactId>grizzly-servlet-webserver</artifactId>
 			<version>1.9.36</version>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>com.wordnik</groupId>-->
-<!--			<artifactId>swagger-core</artifactId>-->
-<!--			<version>1.0</version>-->
-<!--		</dependency>-->
+
+		<!--		<dependency>-->
+		<!--			<groupId>com.wordnik</groupId>-->
+		<!--			<artifactId>swagger-core</artifactId>-->
+		<!--			<version>1.0</version>-->
+		<!--		</dependency>-->
 	</dependencies>
 </project>
