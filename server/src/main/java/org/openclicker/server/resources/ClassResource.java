@@ -18,6 +18,7 @@ import net.sf.json.JSONSerializer;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.openclicker.server.domain.Class;
+import org.openclicker.server.domain.Student;
 import org.openclicker.server.util.EmptyValueException;
 import org.openclicker.server.util.HibernateUtil;
 import org.openclicker.server.util.serverExceptions.WebNotFoundException;
@@ -88,35 +89,41 @@ public class ClassResource {
       JSONObject json = (JSONObject) JSONSerializer.toJSON(context);
       int id = addNewClass(json);
       return Response.status(Status.ACCEPTED).entity(
-          "New Class " + id  + " added\n").type(MediaType.TEXT_PLAIN).build();
+          "New Class " + id + " added\n").type(MediaType.TEXT_PLAIN).build();
     } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
       throw new WebBadRequestException(e);
-    } catch (JSONException e){
+    } catch (JSONException e) {
       throw new WebBadRequestException(e);
     }
   }
-  @GET
+  
+  @POST
   @Path("/{class_uid_text}/students")
   @Consumes("application/json")
   public Response addStudentToClass(
-      @PathParam("class_uid_text") String class_uid_text) {
+      @PathParam("class_uid_text") String class_uid_text, String context) {
     try {
       Integer class_uid = Integer.parseInt(class_uid_text);
-      return null;
+      JSONObject json = (JSONObject) JSONSerializer.toJSON(context);
+      int student_uid = json.getInt("student");
+      addNewStudentToClass(class_uid, student_uid);
+      return Response.status(Status.ACCEPTED).entity(
+          "New Student " + student_uid + " added to class " + class_uid_text +"\n").type(MediaType.TEXT_PLAIN)
+          .build();
       
-      //return getJSONArrayOfAllStudents(class_uid).toString();
-//    } catch (EmptyValueException e) {
-//      logger.warn(e.getMessage());
-//      throw new WebNotFoundException(e);
     } catch (NumberFormatException e) {
+      logger.warn(e.getMessage());
+      throw new WebBadRequestException(e);
+    } catch (EmptyValueException e) {
+      logger.warn(e.getMessage());
+      throw new WebNotFoundException(e);
+    } catch (JSONException e) {
       logger.warn(e.getMessage());
       throw new WebBadRequestException(e);
     }
   }
   
-  
-
   private JSONArray getJSONArrayOfAllQuizzes(int class_uid)
       throws EmptyValueException {
     
@@ -177,6 +184,30 @@ public class ClassResource {
     } catch (HibernateException e) {
       session.close();
       throw new WebServerException(e);
+    }
+    
+  }
+  
+  private void addNewStudentToClass(int class_uid, int student_uid)
+      throws EmptyValueException {
+    
+    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+    session.beginTransaction();
+    Class tempClass = (Class) session.get(Class.class, class_uid);
+    Student tempStudent = (Student) session.get(Student.class, student_uid);
+    
+    if (tempClass != null && tempStudent != null) {
+      tempClass.addStudent(tempStudent);
+      
+      //If the class does not contain the student add them
+      if(!tempClass.getStudents_Unmodifiable().contains(tempStudent)){
+        session.save(tempClass);
+        session.save(tempStudent);
+        session.getTransaction().commit();
+      }
+    } else {
+      session.close();
+      throw new EmptyValueException("Class " + class_uid + " was not found.");
     }
     
   }
