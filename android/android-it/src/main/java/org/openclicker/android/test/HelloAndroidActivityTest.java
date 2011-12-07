@@ -1,17 +1,18 @@
 package org.openclicker.android.test;
 
+import org.openclicker.android.LoginActivity;
+
 import android.test.ActivityInstrumentationTestCase2;
-import org.openclicker.android.*;
 
-public class HelloAndroidActivityTest extends ActivityInstrumentationTestCase2<HelloAndroidActivity> {
-
-    public HelloAndroidActivityTest() {
-        super("org.openclicker.android", HelloAndroidActivity.class);
-    }
-
-    public void testActivity() {
-        HelloAndroidActivity activity = getActivity();
-        assertNotNull(activity);
-    }
+public class HelloAndroidActivityTest extends
+    ActivityInstrumentationTestCase2<LoginActivity> {
+  
+  public HelloAndroidActivityTest() {
+    super("org.openclicker.android", LoginActivity.class);
+  }
+  
+  public void testActivity() {
+    LoginActivity activity = getActivity();
+    assertNotNull(activity);
+  }
 }
-

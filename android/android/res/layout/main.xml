@@ -1,62 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical" android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:orientation="vertical">
 
-	<TextView android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:text="@string/hello"
-		android:gravity="center" />
+	<TextView android:id="@+id/textView1" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:text="@string/studentUID"
+		android:textSize="30sp" android:textColor="#FFFFFF" android:gravity="center_horizontal" />
 
-	<org.openclicker.android.FlingAndScrollViewer
-		android:layout_width="fill_parent" android:layout_height="fill_parent"
-		android:id="@+id/flingScrollViewer">
-		<ScrollView android:id="@+id/scrollView1"
-			android:background="#FF8000" android:layout_height="fill_parent"
-			android:layout_width="fill_parent">
-			<LinearLayout android:id="@+id/linearLayout1"
-				android:layout_height="fill_parent" android:layout_width="fill_parent"
-				android:orientation="vertical">
-				<TextView android:id="@+id/TextView01" android:text="1"
-					android:textColor="#ffffff" android:layout_width="fill_parent"
-					android:layout_weight="1" android:gravity="center"
-					android:layout_height="wrap_content" android:textSize="500dip"></TextView>
-			</LinearLayout>
-		</ScrollView>
-		<ScrollView android:id="@+id/scrollView2"
-			android:background="#0080FF" android:layout_height="fill_parent"
-			android:layout_width="fill_parent">
-			<LinearLayout android:id="@+id/linearLayout2"
-				android:layout_height="fill_parent" android:layout_width="fill_parent"
-				android:orientation="vertical">
-				<TextView android:id="@+id/TextView02" android:text="2"
-					android:textColor="#ffffff" android:layout_width="fill_parent"
-					android:layout_weight="1" android:gravity="center"
-					android:layout_height="wrap_content" android:textSize="500dip"></TextView>
-			</LinearLayout>
-		</ScrollView>
-		<ScrollView android:id="@+id/scrollView3"
-			android:background="#00FF00" android:layout_height="fill_parent"
-			android:layout_width="fill_parent">
-			<LinearLayout android:id="@+id/linearLayout3"
-				android:layout_height="fill_parent" android:layout_width="fill_parent"
-				android:orientation="vertical">
-				<TextView android:id="@+id/TextView03" android:text="3"
-					android:textColor="#ffffff" android:layout_width="fill_parent"
-					android:layout_weight="1" android:gravity="center"
-					android:layout_height="wrap_content" android:textSize="500dip"></TextView>
-			</LinearLayout>
-		</ScrollView>
-	</org.openclicker.android.FlingAndScrollViewer>
+	<EditText android:id="@+id/editText1" android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<requestFocus />
+	</EditText>
+
+	<TextView android:id="@+id/textView2" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:text="@string/classUID"
+		android:textSize="30sp" android:textColor="#FFFFFF" android:gravity="center_horizontal" />
+
+	<EditText android:id="@+id/editText2" android:layout_width="match_parent"
+		android:layout_height="wrap_content" />
+
+	<TextView android:id="@+id/textView3" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:text="@string/quizUID"
+		android:textSize="30sp" android:textColor="#FFFFFF" android:gravity="center_horizontal" />
+
+	<EditText android:id="@+id/editText3" android:layout_width="match_parent"
+		android:layout_height="wrap_content" />
+
+	<Button android:id="@+id/submitButton1" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:text="Submit Button" />
+
 </LinearLayout>
-
-
-	<!--    android:orientation="vertical"-->
-	<!--    android:layout_width="fill_parent"-->
-	<!--    android:layout_height="fill_parent"-->
-	<!--    >-->
-	<!--<TextView  -->
-	<!--    android:layout_width="fill_parent" -->
-	<!--    android:layout_height="wrap_content" -->
-	<!--    android:text="@string/hello"-->
-	<!--    />-->
-	<!--</LinearLayout>-->

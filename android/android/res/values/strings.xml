@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello android!</string>
-    <string name="app_name">Open Clicker</string>
+    <string name="hello">Hello World, LoginActivity!</string>
+    <string name="app_name">OpenClickerApp</string>
+	<string name="studentUID">Student UID:</string>
+	<string name="classUID">Class UID</string>
+	<string name="quizUID">Quiz UID</string>
 </resources>
