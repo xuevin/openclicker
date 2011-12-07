@@ -1,33 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	android:orientation="vertical">
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
 
-	<TextView android:id="@+id/textView1" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:text="@string/studentUID"
-		android:textSize="30sp" android:textColor="#FFFFFF" android:gravity="center_horizontal" />
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/studentUID"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp" />
 
-	<EditText android:id="@+id/editText1" android:layout_width="match_parent"
-		android:layout_height="wrap_content">
+    <EditText
+        android:id="@+id/editText1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
 
-		<requestFocus />
-	</EditText>
+        <requestFocus />
+    </EditText>
 
-	<TextView android:id="@+id/textView2" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:text="@string/classUID"
-		android:textSize="30sp" android:textColor="#FFFFFF" android:gravity="center_horizontal" />
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/classUID"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp" />
 
-	<EditText android:id="@+id/editText2" android:layout_width="match_parent"
-		android:layout_height="wrap_content" />
+    <EditText
+        android:id="@+id/editText2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number" />
 
-	<TextView android:id="@+id/textView3" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:text="@string/quizUID"
-		android:textSize="30sp" android:textColor="#FFFFFF" android:gravity="center_horizontal" />
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:inputType="number"
+        android:text="@string/quizUID"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp" />
 
-	<EditText android:id="@+id/editText3" android:layout_width="match_parent"
-		android:layout_height="wrap_content" />
+    <EditText
+        android:id="@+id/editText3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number" />
 
-	<Button android:id="@+id/submitButton1" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:text="Submit Button" />
+    <Button
+        android:id="@+id/submitButton1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Submit Button" />
 
 </LinearLayout>
