@@ -5,4 +5,17 @@
 	<string name="studentUID">Student UID:</string>
 	<string name="classUID">Class UID</string>
 	<string name="quizUID">Quiz UID</string>
+	<string name="myStudent">Student UID:</string> 
+	<string name="myClass">Class UID:</string> 
+	<string name="myQuiz">Quiz UID:</string> 
+	<string name="mySubmit">Submit</string> 
+	<string name="homepage">Login Screen</string>
+	<string name="Port">Portrait Mode</string>
+	<string name="Land">Landscape Mode</string>
+	<color name="red">#ff0000</color> 
+	<color name="blue">#0000ff</color> 
+	<color name="green">#f0f0</color> 
+	<color name="grey">#808080</color> 
+	<color name="black">#000000</color> 
+	<color name="sky_blue">#0080ff</color>
 </resources>

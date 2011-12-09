@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Vector;
 
 import org.apache.http.HttpResponse;
@@ -16,22 +17,27 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.openclicker.android.R.layout;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class LoginActivity extends Activity {
   private String studentUID;
   private String classUID;
   private String quizUID;
-  // private String requestURL = "genome.hunter.cuny.edu:9998/quiz/";
-  private String jString;
-  private static final String requestURL = "http://192.168.11.43:9998/quiz/";
+  private String requestURL = "http://genome.hunter.cuny.edu:9998/quiz/";
+  // private static final String requestURL = "http://192.168.11.43:9998/quiz/";
   private static final String TAG = "MyActivity";
   
   private Vector<Integer> cUIDVec = new Vector<Integer>();
@@ -43,16 +49,21 @@ public class LoginActivity extends Activity {
     super.onCreate(savedInstanceState);
     
     // Log a message (only on dev platform)
-    Log.i(TAG, "Random Logger Message");
+    // Log.i(TAG, "Random Logger Message");
     
     setContentView(R.layout.main);
+//    Log.i(TAG, "Random Logger Message");
     
     Button submitButton = (Button) findViewById(R.id.submitButton1);
     submitButton.setOnClickListener(new View.OnClickListener() {
+      private String quizJSONString;
+      private String choiceJSONString;
+      
       // When student press on the submit button, the program get the
       // Information from the 3 editText field and send request to the
       // server to get the quiz (with the helper function)
       public void onClick(View v) {
+        
         EditText studentText = (EditText) findViewById(R.id.editText1);
         EditText classText = (EditText) findViewById(R.id.editText2);
         EditText quizText = (EditText) findViewById(R.id.editText3);
@@ -70,26 +81,47 @@ public class LoginActivity extends Activity {
             return;
           }
           
-          // Create the request URL
-          String currentRequestURL = requestURL + quizUID + "/choices";
+          ////////////////////////////////////////////////////
+          // Query Server
+          ////////////////////////////////////////////////////
+          
           try {
-            // Get the JSON from the server
-            jString = readData(currentRequestURL);
+            String quizURL = requestURL + quizUID;
+            quizJSONString = readData(quizURL);
+            Log.i(TAG, quizJSONString);
+
+            String choiceURL = requestURL + quizUID + "/choices";
+            choiceJSONString = readData(choiceURL);
+            Log.i(TAG, choiceJSONString);
           } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Log.i(TAG, e.getMessage());
+            return;
           }
           
-          Toast.makeText(LoginActivity.this, jString, Toast.LENGTH_LONG).show();
+          Toast.makeText(LoginActivity.this, choiceJSONString,
+              Toast.LENGTH_LONG).show();
           
-          // Parse the JSON String, get the data and put them into the
-          // corresponding vector, pass them along to the next activity
-          try {
-            jParse(jString);
-          } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+          // Fetch Quiz
+          // ////////////////////////////////////////////////////////////////////////////
+          
+          String question = new JSONObject(quizJSONString).getString("question");
+          HashMap<Integer,String> choices = jParseChoices(choiceJSONString);
+          
+          setContentView(R.layout.quiz);
+          
+          LinearLayout foo = (LinearLayout) findViewById(R.id.linearLayout1);
+          ((TextView)findViewById(R.id.questionPlaceHolder)).setText(question);
+          for (Integer key : choices.keySet()) {
+            Button temp = new Button(getContext());
+            
+            temp.setOnClickListener(new CustomOnClickerListener(getContext(), key, choices.get(key)));
+            temp.setText(choices.get(key));
+            foo.addView(temp);
           }
+          
+          
+          
+          
           
         } catch (Exception e) {
           Toast
@@ -146,5 +178,21 @@ public class LoginActivity extends Activity {
       JSONObject bar = jDescription.getJSONObject(i);
       cDescriptionVec.add(bar.getString("desription"));
     }
+  }
+  
+  // JSON String parser method
+  private HashMap<Integer,String> jParseChoices(String myJString) throws JSONException {
+    JSONArray myArray = new JSONArray(myJString);
+    HashMap<Integer,String> choices = new HashMap<Integer,String>();
+    for (int i = 0; i < myArray.length(); i++) {
+      String description = myArray.getJSONObject(i).getString("description");
+      int uid = myArray.getJSONObject(i).getInt("choice_uid");
+      choices.put(uid, description);
+    }
+    return choices;
+  }
+  private LoginActivity getContext() {
+    return this;
+    
   }
 }
