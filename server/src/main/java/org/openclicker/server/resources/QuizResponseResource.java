@@ -6,7 +6,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -94,6 +93,9 @@ public class QuizResponseResource {
           int choiceUID = Integer.parseInt(response);
           logger.info(choiceUID+"");
           tempChoice = (AvailableChoice) session.get(AvailableChoice.class,choiceUID);
+          if(tempChoice==null){
+            throw new EmptyValueException("The following availablechoice UID is invalid: " + choiceUID);
+          }
           
         } else {
           tempChoice = new AvailableChoice(response);
@@ -105,7 +107,7 @@ public class QuizResponseResource {
         
         session.save(tempStudent);
         logger.info("QuizResponse successfully Saved");
-//        session.getTransaction().commit();
+        session.getTransaction().commit();
         
       } catch (HibernateException e) {
         session.close();

@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="org.openclicker.android" android:versionCode="1" android:versionName="1.0-SNAPSHOT">
- <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-    
-  <application android:label="@string/app_name" android:icon="@drawable/icon">
-    <activity android:name=".LoginActivity">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
-    </activity>
-  </application>
+    package="org.openclicker.android"
+    android:versionCode="1"
+    android:versionName="1.0-SNAPSHOT" >
+
+    <uses-permission android:name="android.permission.INTERNET" >
+    </uses-permission>
+
+    <application
+        android:icon="@drawable/icon"
+        android:label="@string/app_name" >
+        <activity android:name=".activity.LoginActivity" >
+            <intent-filter >
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:label="Quiz Activity"
+            android:name=".activity.QuizActivity" />
+        <activity
+            android:label="Wait Activity"
+            android:name=".activity.WaitActivity" />
+          <activity
+            android:label="Graph Activity"
+            android:name=".activity.ClickerGraphActivity" />
+    </application>
 
 </manifest>
-

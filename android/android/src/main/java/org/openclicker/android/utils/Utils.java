@@ -16,13 +16,16 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
 
+import android.accounts.NetworkErrorException;
+
 public class Utils {
-  //TODO - Throw an ServerException when the appropriate JSON is not returned.
+  // TODO - Throw an ServerException when the appropriate JSON is not returned.
   
-  public final static String SERVERADDRESS = "http://192.168.11.43:9998/";
+  public final static String SERVERADDRESS = "http://146.95.30.80:9998";
   
   // Connect to the server and read the JSON into a long string
-  public static String getData(String myRequestURL) throws Exception {
+  public static String getData(String myRequestURL)
+      throws NetworkErrorException {
     BufferedReader in = null;
     try {
       HttpClient client = new DefaultHttpClient();
@@ -39,13 +42,18 @@ public class Utils {
       in.close();
       String page = sb.toString();
       return page;
+    } catch (URISyntaxException e) {
+      throw new NetworkErrorException(e);
+    } catch (ClientProtocolException e) {
+      throw new NetworkErrorException(e);
+    } catch (IOException e) {
+      throw new NetworkErrorException(e);
     } finally {
       if (in != null) {
         try {
           in.close();
         } catch (IOException e) {
-          e.printStackTrace();
-          throw e;
+          throw new NetworkErrorException(e);
         }
       }
     }
@@ -74,22 +82,21 @@ public class Utils {
       in.close();
       return sb.toString();
       
-    }catch(URISyntaxException e){
-      throw new RuntimeException("URL Incorrect",e);
+    } catch (URISyntaxException e) {
+      throw new RuntimeException("URL Incorrect", e);
     } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException("Unsupported Encoding",e);
+      throw new RuntimeException("Unsupported Encoding", e);
     } catch (ClientProtocolException e) {
-      throw new RuntimeException("Client Protocol Exception",e);
+      throw new RuntimeException("Client Protocol Exception", e);
     } catch (IOException e) {
-      throw new RuntimeException("IOException",e);
-    }
-    finally {
+      throw new RuntimeException("IOException", e);
+    } finally {
       if (in != null) {
         try {
           in.close();
         } catch (IOException e) {
           e.printStackTrace();
-          throw new RuntimeException("IOException",e);
+          throw new RuntimeException("IOException", e);
         }
       }
     }

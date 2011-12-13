@@ -15,7 +15,7 @@ import android.widget.Scroller;
 
 /**
  * @author http://www.jmstudio.org/archives/391
- *
+ * 
  */
 public class FlingAndScrollViewer extends ViewGroup {
   private Scroller mScroller;

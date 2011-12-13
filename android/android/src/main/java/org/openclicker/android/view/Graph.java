@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.View;
+import android.widget.Toast;
 
 public class Graph extends View {
   private Vector<String> choiceVec = new Vector<String>(); // Vector contain the
@@ -26,14 +27,14 @@ public class Graph extends View {
   
   public Graph(Context context, int myScreenX, int myScreenY,
       Vector<String> myChoiceVec, Vector<Integer> myCountVec,
-      Vector<String> myAnswerVec, int myNumOfChoice) {
+      Vector<String> myAnswerVec) {
     super(context);
     screenY = myScreenY; // Width
     screenX = myScreenX; // Height
     choiceVec = myChoiceVec; // List of choices
     countVec = myCountVec; // List of the count corresponds to choices
     answerVec = myAnswerVec; // List of answer
-    numOfChoice = myNumOfChoice; // Number of choices
+    numOfChoice = myChoiceVec.size(); // Number of choices
     setup();
   }
   

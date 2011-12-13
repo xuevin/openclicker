@@ -14,6 +14,7 @@ import org.openclicker.android.R.id;
 import org.openclicker.android.R.layout;
 import org.openclicker.android.utils.Utils;
 
+import android.accounts.NetworkErrorException;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -70,7 +71,7 @@ public class LoginActivity extends Activity {
     });
   }
   
-  protected void queryServer() throws Exception {
+  protected void queryServer() throws RuntimeException {
     
     EditText studentText = (EditText) findViewById(R.id.editText1);
     EditText classText = (EditText) findViewById(R.id.editText2);
@@ -88,20 +89,21 @@ public class LoginActivity extends Activity {
     }
     
     try {
-      String quizURL = Utils.SERVERADDRESS + "quiz/" + quizUID;
+      String quizURL = Utils.SERVERADDRESS + "/quiz/" + quizUID;
       quizJSONString = Utils.getData(quizURL);
       Log.i(TAG, quizJSONString);
       
-      String choiceURL = Utils.SERVERADDRESS + "quiz/" + quizUID + "/choices";
+      String choiceURL = Utils.SERVERADDRESS + "/quiz/" + quizUID + "/choices";
       choiceJSONString = Utils.getData(choiceURL);
       Log.i(TAG, choiceJSONString);
       
       // Toast.makeText(LoginActivity.this, choiceJSONString, Toast.LENGTH_LONG)
       // .show();
-    } catch (Exception e) {
-      Log.i(TAG, "Network Problems");
+    }catch (NetworkErrorException e){
+      Log.i(TAG, e.getMessage());
       Toast.makeText(LoginActivity.this, "Network Problems....",
           Toast.LENGTH_LONG).show();
+      throw new RuntimeException(e);
     }
     
   }

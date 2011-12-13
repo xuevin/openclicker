@@ -30,7 +30,7 @@ containing a value of this type.
         public static final int icon=0x7f020000;
     }
     public static final class id {
-        public static final int changeChoices=0x7f06000b;
+        public static final int changeAnswer=0x7f06000b;
         public static final int editText1=0x7f060001;
         public static final int editText2=0x7f060003;
         public static final int editText3=0x7f060005;

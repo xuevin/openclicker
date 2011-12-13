@@ -35,7 +35,8 @@ public class QuizActivity extends Activity {
   
   protected void loadQuizChoices(Bundle extras) {
     try {
-      String question = new JSONObject(extras.getString("quizJSON")).getString("question");
+      String quizJSON = extras.getString("quizJSON");
+      String question = new JSONObject(quizJSON).getString("question");
       
       String choiceJSONString = extras.getString("choicesJSON");
       HashMap<Integer,String> choices = jParseChoices(choiceJSONString);

@@ -1,6 +1,6 @@
 package org.openclicker.android.test;
 
-import org.openclicker.android.LoginActivity;
+import org.openclicker.android.activity.LoginActivity;
 
 import android.test.ActivityInstrumentationTestCase2;
 

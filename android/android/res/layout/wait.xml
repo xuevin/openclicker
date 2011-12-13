@@ -6,22 +6,35 @@
 
     <TextView
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Selected choice" />
+        android:layout_height="60dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="Are You Sure?"
+        android:textColor="#ffffff"
+        android:textSize="40dp" />
+
     <TextView
         android:id="@+id/selectedChoice"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="placeholder" />
+        android:layout_height="30dp"
+        android:layout_weight="1"
+        android:gravity="top|center_horizontal"
+        android:text="placeholder"
+        android:textColor="#ffffff"
+        android:textSize="20dp" />
+
     <Button
-        android:id="@+id/changeChoices"
+        android:id="@+id/changeAnswer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:text="Change Answer" />
+
     <Button
         android:id="@+id/getGrade"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:text="Get Grade!" />
 
 </LinearLayout>

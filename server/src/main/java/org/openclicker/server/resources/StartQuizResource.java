@@ -158,6 +158,10 @@ public class StartQuizResource {
     session.beginTransaction();
     Class tempClass = (Class) session.get(Class.class, classUid);
     Quiz tempQuiz = (Quiz) session.get(Quiz.class, quizUid);
+
+    if(!tempClass.getQuizzes_Unmodifiable().contains(tempQuiz)){
+      throw new EmptyValueException("The class has never asked this quiz");
+    }
     
     // FIXME - THis is a disgusting hack to get the job done.
     // You should really only be doing one query but this explodes!

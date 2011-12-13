@@ -109,8 +109,8 @@ public class ClassResource {
       int student_uid = json.getInt("student");
       addNewStudentToClass(class_uid, student_uid);
       return Response.status(Status.ACCEPTED).entity(
-          "New Student " + student_uid + " added to class " + class_uid_text +"\n").type(MediaType.TEXT_PLAIN)
-          .build();
+          "New Student " + student_uid + " added to class " + class_uid_text
+              + "\n").type(MediaType.TEXT_PLAIN).build();
       
     } catch (NumberFormatException e) {
       logger.warn(e.getMessage());
@@ -196,19 +196,22 @@ public class ClassResource {
     Class tempClass = (Class) session.get(Class.class, class_uid);
     Student tempStudent = (Student) session.get(Student.class, student_uid);
     
-    if (tempClass != null && tempStudent != null) {
-      tempClass.addStudent(tempStudent);
-      
-      //If the class does not contain the student add them
-      if(!tempClass.getStudents_Unmodifiable().contains(tempStudent)){
-        session.save(tempClass);
-        session.save(tempStudent);
-        session.getTransaction().commit();
-      }
-    } else {
-      session.close();
+    if (tempClass == null) {
       throw new EmptyValueException("Class " + class_uid + " was not found.");
+    } else if (tempStudent == null) {
+      throw new EmptyValueException("Student " + student_uid
+          + " was not found.");
     }
+    
+    logger.info("Student {}  was added to class {}",student_uid,class_uid);
+    
+    // If the class does not contain the student add them
+    if (!tempClass.getStudents_Unmodifiable().contains(tempStudent)) {
+      tempClass.addStudent(tempStudent);
+      session.save(tempClass);
+      session.save(tempStudent);
+    }
+    session.getTransaction().commit();
     
   }
   

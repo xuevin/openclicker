@@ -18,33 +18,19 @@ import android.widget.Toast;
 
 public class WaitActivity extends Activity {
   
+  private Bundle extras;
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.wait);
-    addFunctionToButtons();
-    
-    Bundle extras = getIntent().getExtras();
+    extras = getIntent().getExtras();
     if (extras != null) {
       TextView selectedChoice = (TextView) findViewById(R.id.selectedChoice);
       selectedChoice.setText(extras.getString("choiceDescription"));
-      
-      // (extras.getString("selectedKey"));
-      
-      // private int key;
-      // private String description;
-      // String TAG = "CustomClickListener";
-      // private String studentUID;
-      // private String classUID;
-      // private String quizUID;
-      //      
-      // this.key = extras.getInt("key");
-      // this.description = extras.getString("description");
-      // this.studentUID = extras.getString("classUID");
-      // this.quizUID = extras.getString("quizUID");
-      // this.classUID = extras.getString("studentUID");
-      
     }
+    addFunctionToButtons();
+    
     
   }
   
@@ -62,12 +48,13 @@ public class WaitActivity extends Activity {
     submitAnswer.setOnClickListener(new OnClickListener() {
       
       public void onClick(View v) {
-        JSONObject foo = new JSONObject();
+        JSONObject tempJSONObj = new JSONObject();
         try {
-          foo.put("class_name", "Android");
+          tempJSONObj.put("class_name", "Android");
 //          String response = Utils.postData(Utils.SERVERADDRESS + "class", foo);
           Intent intent = new Intent(getApplicationContext(),
               ClickerGraphActivity.class);
+          intent.putExtras(extras);
           startActivity(intent);
 //          Toast.makeText(WaitActivity.this, response, Toast.LENGTH_LONG).show();
           

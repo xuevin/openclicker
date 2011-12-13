@@ -18,32 +18,47 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.openclicker.android.Graph;
+import org.openclicker.android.R;
 import org.openclicker.android.utils.Utils;
+import org.openclicker.android.view.Graph;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.Window;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class ClickerGraphActivity extends Activity {
-  private String dataString = null;
+  private String statsString = null;
   private Vector<String> choiceVec = new Vector<String>();
   private Vector<String> answerVec = new Vector<String>();
   private Vector<Integer> countVec = new Vector<Integer>();
+  private Bundle extras;
+  
   private final static String TAG = "ClickerGraphActivity";
   
   /** Called when the activity is first created. */
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    extras = getIntent().getExtras();
+    String classUID = null;
+    String quizUID = null;
+    if (extras != null) {
+      
+      classUID = extras.getString("classUID");
+      quizUID = extras.getString("quizUID");
+      Log.d(TAG, classUID);
+      Log.d(TAG, quizUID);
+    }
+    
     try {
-      dataString = Utils
-          .getData("http://192.168.11.43:9998/class/3/quiz/3/stats");
+      statsString = Utils.getData(Utils.SERVERADDRESS + "/class/"+ classUID + "/quiz/" + quizUID + "/stats");
+      Log.i(TAG, statsString);
       // Toast.makeText(ClickerGraphActivity.this, dataString,
       // Toast.LENGTH_LONG).show();
-      jParse(dataString);
+      jParse(statsString);
     } catch (Exception e) {
       Toast.makeText(ClickerGraphActivity.this, "jParse problem",
           Toast.LENGTH_LONG).show();
@@ -56,9 +71,13 @@ public class ClickerGraphActivity extends Activity {
     int screenY = display.getHeight();
     int numOfChoice = choiceVec.size();
     
-    requestWindowFeature(Window.FEATURE_NO_TITLE);
-    setContentView(new Graph(this, screenX, screenY, choiceVec, countVec,
-        answerVec, numOfChoice));
+    if(numOfChoice==0){
+      Toast.makeText(ClickerGraphActivity.this, "This Quiz has no choices", Toast.LENGTH_LONG).show();
+    }else{
+      requestWindowFeature(Window.FEATURE_NO_TITLE);
+      setContentView(new Graph(this, screenX, screenY, choiceVec, countVec,
+          answerVec));
+    }
   }
   
   // JSON String parser method
