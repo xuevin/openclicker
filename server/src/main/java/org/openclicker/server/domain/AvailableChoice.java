@@ -12,8 +12,8 @@ public class AvailableChoice implements Serializable {
   
   private int choice_uid;
   private String description;
-  private Set<Quiz> quizesAsAnswer = new HashSet<Quiz>();
-  private Set<Quiz> quizesAsChoice = new HashSet<Quiz>();
+  private Set<Quiz> quizzesAsAnswer = new HashSet<Quiz>();
+  private Set<Quiz> quizzesAsChoice = new HashSet<Quiz>();
   
   public AvailableChoice() {
 
@@ -39,20 +39,20 @@ public class AvailableChoice implements Serializable {
     return description;
   }
   
-  protected void setQuizesAsChoice(Set<Quiz> quizesAsChoice) {
-    this.quizesAsChoice = quizesAsChoice;
+  protected void setQuizzesAsChoice(Set<Quiz> quizesAsChoice) {
+    this.quizzesAsChoice = quizesAsChoice;
   }
   
-  protected Set<Quiz> getQuizesAsChoice() {
-    return quizesAsChoice;
+  protected Set<Quiz> getQuizzesAsChoice() {
+    return quizzesAsChoice;
   }
   
-  protected void setQuizesAsAnswer(Set<Quiz> quizesAsAnswer) {
-    this.quizesAsAnswer = quizesAsAnswer;
+  protected void setQuizzesAsAnswer(Set<Quiz> quizesAsAnswer) {
+    this.quizzesAsAnswer = quizesAsAnswer;
   }
   
-  protected Set<Quiz> getQuizesAsAnswer() {
-    return quizesAsAnswer;
+  protected Set<Quiz> getQuizzesAsAnswer() {
+    return quizzesAsAnswer;
   }
   
   @Override
@@ -72,7 +72,7 @@ public class AvailableChoice implements Serializable {
   @Override
   public int hashCode() {
     int result;
-    result = choice_uid * 26;
+    result = description.hashCode(); //FIXME
     return result;
   }
   

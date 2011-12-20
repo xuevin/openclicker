@@ -49,22 +49,22 @@ public class Quiz implements Serializable{
   
   public void addAnswer(AvailableChoice answerToBeAdded) {
     this.getAnswers().add(answerToBeAdded);
-    answerToBeAdded.getQuizesAsAnswer().add(this);
+    answerToBeAdded.getQuizzesAsAnswer().add(this);
   }
   
   public void removeAnswer(AvailableChoice answerToBeRemoved) {
     this.getAnswers().remove(answerToBeRemoved);
-    answerToBeRemoved.getQuizesAsAnswer().remove(this);
+    answerToBeRemoved.getQuizzesAsAnswer().remove(this);
   }
   
   public void addChoice(AvailableChoice choiceToBeAdded) {
     this.getChoices().add(choiceToBeAdded);
-    choiceToBeAdded.getQuizesAsChoice().add(this);
+    choiceToBeAdded.getQuizzesAsChoice().add(this);
   }
   
   public void removeChoice(AvailableChoice choiceToBeRemoved) {
     this.getChoices().remove(choiceToBeRemoved);
-    choiceToBeRemoved.getQuizesAsChoice().remove(this);
+    choiceToBeRemoved.getQuizzesAsChoice().remove(this);
   }
   
   public void setTopic(Topic topic) {

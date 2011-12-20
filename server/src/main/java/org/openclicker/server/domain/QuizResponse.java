@@ -22,7 +22,6 @@ public class QuizResponse implements Serializable {
     this.setQuiz(quiz);
     this.setSelected_choice(choice);
     this.setDate_taken(dateTaken);
-    this.setQuiz(quiz);
   }
   
   public void setDate_taken(Date date_taken) {

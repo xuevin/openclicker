@@ -89,15 +89,15 @@ public class StudentTest {
   
   @Test
   public void testAddQuizReponse() {
-    assertEquals(student1.getQuizReponses().size(), 0);
+    assertEquals(student1.getQuizResponses().size(), 0);
     
     Quiz quiz = new Quiz(Topic.English, Type.MC, "FOO");
     AvailableChoice choice = new AvailableChoice("Grapes");
     Class english102 = new Class("English 102");
     QuizResponse quizResponse = new QuizResponse(english102,quiz, choice, new Date());
-    student1.addQuizReponse(quizResponse);
+    student1.addQuizResponse(quizResponse);
     
-    assertEquals(student1.getQuizReponses().size(), 1);
+    assertEquals(student1.getQuizResponses().size(), 1);
   }
   
   @Test
@@ -106,10 +106,10 @@ public class StudentTest {
     AvailableChoice choice = new AvailableChoice("Grapes");
     Class english102 = new Class("English 102");
     QuizResponse quizResponse = new QuizResponse(english102,quiz, choice, new Date());
-    student1.addQuizReponse(quizResponse);
-    assertEquals(student1.getQuizReponses().size(), 1);
+    student1.addQuizResponse(quizResponse);
+    assertEquals(student1.getQuizResponses().size(), 1);
     student1.removeQuizResponse(quizResponse);
-    assertEquals(student1.getQuizReponses().size(), 0);
+    assertEquals(student1.getQuizResponses().size(), 0);
     
   }
   
@@ -141,8 +141,8 @@ public class StudentTest {
   @Test
   public void testSetQuizResponses() {
     Set<QuizResponse> quizResponses = new HashSet<QuizResponse>();
-    student1.setQuizReponses(quizResponses);
-    assertEquals(quizResponses, student1.getQuizReponses());
+    student1.setQuizResponses(quizResponses);
+    assertEquals(quizResponses, student1.getQuizResponses());
   }
   
   @Test

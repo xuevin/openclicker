@@ -1,17 +1,6 @@
 package org.openclicker.android.activity;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URI;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.openclicker.android.R;
-import org.openclicker.android.R.id;
-import org.openclicker.android.R.layout;
 import org.openclicker.android.utils.Utils;
 
 import android.accounts.NetworkErrorException;
@@ -99,7 +88,7 @@ public class LoginActivity extends Activity {
       
       // Toast.makeText(LoginActivity.this, choiceJSONString, Toast.LENGTH_LONG)
       // .show();
-    }catch (NetworkErrorException e){
+    } catch (NetworkErrorException e) {
       Log.i(TAG, e.getMessage());
       Toast.makeText(LoginActivity.this, "Network Problems....",
           Toast.LENGTH_LONG).show();

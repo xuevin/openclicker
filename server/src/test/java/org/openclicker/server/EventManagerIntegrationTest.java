@@ -163,7 +163,7 @@ public class EventManagerIntegrationTest {
     QuizResponse response = new QuizResponse(englishClass, quiz1, choice3,
         new Date());
     
-    robert.addQuizReponse(response);
+    robert.addQuizResponse(response);
     
     session.save(choice1);
     session.save(choice2);
@@ -172,15 +172,16 @@ public class EventManagerIntegrationTest {
     session.save(englishClass);
     session.save(quiz1);
     session.save(robert);
+
+    System.out.println(quiz1.getChoices_Unmodifiable().size());
     
     for (QuizResponse r : robert.getQuizResponse_Unmodifiable()) {
       System.out.println(r.getQuiz().getQuestion());
       System.out.println(r.getSelected_choice().getDescription());
       System.out.println(r.getDate_taken());
-      
     }
     
-    // session.getTransaction().commit();
+     session.getTransaction().commit();
     
     // Make a new session
     // session = HibernateUtil.getSessionFactory().getCurrentSession();
