@@ -12,14 +12,14 @@
 		</id>
 		<property name="description" />
 
-		<set name="quizesAsAnswer" table="Answer" inverse="true">
-			<key column="choice_uid" />
-			<many-to-many column="quiz_uid" class="Quiz" />
-		</set>
-		<set name="quizesAsChoice" table="Answer" inverse="true">
-			<key column="choice_uid" />
-			<many-to-many column="quiz_uid" class="Quiz" />
-		</set>
+<!--		<set name="quizzesAsAnswer" table="Answer" inverse="true">-->
+<!--			<key column="choice_uid" />-->
+<!--			<many-to-many column="quiz_uid" class="Quiz" />-->
+<!--		</set>-->
+<!--		<set name="quizzesAsChoice" table="Answer" inverse="true">-->
+<!--			<key column="choice_uid" />-->
+<!--			<many-to-many column="quiz_uid" class="Quiz" />-->
+<!--		</set>-->
 	</class>
 
 </hibernate-mapping>

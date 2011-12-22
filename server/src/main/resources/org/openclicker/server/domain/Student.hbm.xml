@@ -20,7 +20,7 @@
 			<many-to-many column="class_uid" class="Class" />
 		</set>
 
-		<set name="quizReponses" table="Takes">
+		<set name="quizResponses" table="Takes">
 			<key column="student_uid" />
 			<composite-element class="QuizResponse">
 				<many-to-one name="quiz" class="Quiz" column="quiz_uid" />

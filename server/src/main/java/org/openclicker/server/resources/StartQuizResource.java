@@ -129,6 +129,8 @@ public class StartQuizResource {
     // Attempt to get the class and quiz
     Class tempClass = (Class) session.get(Class.class, class_uid);
     Quiz tempQuiz = (Quiz) session.get(Quiz.class, quiz_uid);
+    
+    session.close();
     if (tempClass == null) {
       return ("Class is not available");
     } else if (tempQuiz == null) {
@@ -222,8 +224,10 @@ public class StartQuizResource {
       Class tempClass = (Class) session.get(Class.class, class_uid);
       Quiz tempQuiz = (Quiz) session.get(Quiz.class, quiz_uid);
       if (tempClass == null) {
+        session.close();
         throw new EmptyValueException("Class is not available");
       } else if (tempQuiz == null) {
+        session.close();
         throw new EmptyValueException("Quiz is not available");
       }
       
@@ -236,8 +240,10 @@ public class StartQuizResource {
           activeClassQuizContainer.remove(classQuizPair);
           logger.info("Quiz " + quiz_uid + " successfully stopped for "
               + class_uid);
+          session.close();
           return;
         } else {
+          session.close();
           throw new SetStatusException("Quiz " + quiz_uid + " in class "
               + class_uid + " is already active!");
         }
@@ -245,17 +251,19 @@ public class StartQuizResource {
       
       // Situation when the quiz in question has already been asked
       if (tempClass.getQuizzes_Unmodifiable().contains(tempQuiz)) {
+        session.close();
         throw new SetStatusException("Quiz " + quiz_uid
             + " is no longer accepting responses for class " + class_uid);
       }
       
       // Time to add a new quiz to the class
       if (acceptResponses == false) {
+        session.close();
         throw new SetStatusException("Cannot stop a quiz which is not active!");
       } else {
         // Add the quiz to the class
         tempClass.addQuizes(tempQuiz);
-        session.save(tempClass);// Not sure if this will work
+        session.update(tempClass);// Not sure if this will work
         if (commit) {
           session.getTransaction().commit();
         } else {

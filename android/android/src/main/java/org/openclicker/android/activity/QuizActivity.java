@@ -6,8 +6,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.openclicker.android.R;
-import org.openclicker.android.R.id;
-import org.openclicker.android.R.layout;
 import org.openclicker.android.utils.SelectAnswerOnClickerListener;
 
 import android.app.Activity;

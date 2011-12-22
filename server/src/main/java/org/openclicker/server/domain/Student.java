@@ -16,7 +16,7 @@ public class Student implements Serializable {
   private String last_name;
   private String gender;
   private Set<Class> classes = new HashSet<Class>();
-  private Set<QuizResponse> quizReponses = new HashSet<QuizResponse>();
+  private Set<QuizResponse> quizResponses = new HashSet<QuizResponse>();
   
   public enum Gender {
     M, F
@@ -78,12 +78,12 @@ public class Student implements Serializable {
     return gender;
   }
   
-  public void addQuizReponse(QuizResponse quizResponse) {
-    this.getQuizReponses().add(quizResponse);
+  public void addQuizResponse(QuizResponse quizResponse) {
+    this.getQuizResponses().add(quizResponse);
   }
   
   public void removeQuizResponse(QuizResponse quizResponse) {
-    this.getQuizReponses().remove(quizResponse);
+    this.getQuizResponses().remove(quizResponse);
   }
   
   protected void setClasses(Set<Class> classes) {
@@ -94,12 +94,12 @@ public class Student implements Serializable {
     return classes;
   }
   
-  protected void setQuizReponses(Set<QuizResponse> quizReponses) {
-    this.quizReponses = quizReponses;
+  protected void setQuizResponses(Set<QuizResponse> quizReponses) {
+    this.quizResponses = quizReponses;
   }
   
-  protected Set<QuizResponse> getQuizReponses() {
-    return quizReponses;
+  protected Set<QuizResponse> getQuizResponses() {
+    return quizResponses;
   }
   
   public void addToClass(Class classToAdd) {
@@ -125,7 +125,7 @@ public class Student implements Serializable {
   }
   
   public Set<QuizResponse> getQuizResponse_Unmodifiable() {
-    return Collections.unmodifiableSet(quizReponses);
+    return Collections.unmodifiableSet(quizResponses);
   }
   
   @Override

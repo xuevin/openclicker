@@ -52,31 +52,31 @@ public class AvailableChoiceTest {
   @Test
   public void testSetQuizesAsChoice() {
     Set<Quiz> setOfChoices = new HashSet<Quiz>();
-    choice1.setQuizesAsChoice(setOfChoices);
-    assertEquals(setOfChoices, choice1.getQuizesAsChoice());
+    choice1.setQuizzesAsChoice(setOfChoices);
+    assertEquals(setOfChoices, choice1.getQuizzesAsChoice());
   }
   
   @Test
   public void testGetQuizesAsChoice() {
-    assertEquals(0, choice1.getQuizesAsChoice().size());
+    assertEquals(0, choice1.getQuizzesAsChoice().size());
     Set<Quiz> setOfChoices = new HashSet<Quiz>();
-    choice1.setQuizesAsChoice(setOfChoices);
-    assertEquals(setOfChoices, choice1.getQuizesAsChoice());
+    choice1.setQuizzesAsChoice(setOfChoices);
+    assertEquals(setOfChoices, choice1.getQuizzesAsChoice());
   }
   
   @Test
   public void testSetQuizesAsAnswer() {
     Set<Quiz> setOfChoices = new HashSet<Quiz>();
-    choice1.setQuizesAsAnswer(setOfChoices);
-    assertEquals(setOfChoices, choice1.getQuizesAsAnswer());
+    choice1.setQuizzesAsAnswer(setOfChoices);
+    assertEquals(setOfChoices, choice1.getQuizzesAsAnswer());
   }
   
   @Test
   public void testGetQuizesAsAnswer() {
-    assertEquals(0, choice1.getQuizesAsAnswer().size());
+    assertEquals(0, choice1.getQuizzesAsAnswer().size());
     Set<Quiz> setOfChoices = new HashSet<Quiz>();
-    choice1.setQuizesAsAnswer(setOfChoices);
-    assertEquals(setOfChoices, choice1.getQuizesAsAnswer());
+    choice1.setQuizzesAsAnswer(setOfChoices);
+    assertEquals(setOfChoices, choice1.getQuizzesAsAnswer());
   }
   
   @Test

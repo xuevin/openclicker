@@ -21,6 +21,7 @@ import org.openclicker.server.domain.Class;
 import org.openclicker.server.domain.Quiz;
 import org.openclicker.server.domain.QuizResponse;
 import org.openclicker.server.domain.Student;
+import org.openclicker.server.domain.Student.Gender;
 import org.openclicker.server.resources.containers.ClassQuizIdentifier;
 import org.openclicker.server.util.EmptyValueException;
 import org.openclicker.server.util.HibernateUtil;
@@ -36,8 +37,7 @@ public class QuizResponseResource {
   
   @POST
   @Consumes("application/json")
-  public Response addResponse(
-      @PathParam("quiz_uid_text") String quiz_uid_text,
+  public Response addResponse(@PathParam("quiz_uid_text") String quiz_uid_text,
       @PathParam("student_uid_text") String student_uid_text,
       @PathParam("class_uid_text") String class_uid_text, String context) {
     try {
@@ -73,41 +73,55 @@ public class QuizResponseResource {
         session.beginTransaction();
         
         // Attempt to get the class and quiz
-        Class tempClass = (Class) session.get(Class.class, classUid);
-        Quiz tempQuiz = (Quiz) session.get(Quiz.class, quizUid);
-        Student tempStudent = (Student) session.get(Student.class, studentUid);
+        Class tempClass = (Class) session.load(Class.class, classUid);
+        Quiz tempQuiz = (Quiz) session.load(Quiz.class, quizUid);
+        Student tempStudent = (Student) session.load(Student.class, studentUid);
         
         if (tempClass == null) {
+          session.close();
           throw new EmptyValueException("Class is not available");
         } else if (tempQuiz == null) {
+          session.close();
           throw new EmptyValueException("Quiz is not available");
         } else if (tempStudent == null) {
+          session.close();
           throw new EmptyValueException("Student is not available");
         }
-        
+        //        
         String response = json.getString("response");
         AvailableChoice tempChoice;
         logger.info(tempQuiz.getType());
         logger.info(response);
+        
         if (tempQuiz.getType().equalsIgnoreCase((Quiz.Type.MC).toString())) {
           int choiceUID = Integer.parseInt(response);
-          logger.info(choiceUID+"");
-          tempChoice = (AvailableChoice) session.get(AvailableChoice.class,choiceUID);
-          if(tempChoice==null){
-            throw new EmptyValueException("The following availablechoice UID is invalid: " + choiceUID);
+          logger.info(choiceUID + "");
+          tempChoice = (AvailableChoice) session.get(AvailableChoice.class,
+              choiceUID);
+          if (tempChoice == null) {
+            throw new EmptyValueException(
+                "The following availablechoice UID is invalid: " + choiceUID);
           }
-          
         } else {
+          logger.info("New Response Created!");
           tempChoice = new AvailableChoice(response);
         }
         
         QuizResponse newQuizResponse = new QuizResponse(tempClass, tempQuiz,
             tempChoice, new Date());
-        tempStudent.addQuizReponse(newQuizResponse);
+        tempStudent.addQuizResponse(newQuizResponse);
         
         session.save(tempStudent);
-        logger.info("QuizResponse successfully Saved");
-        session.getTransaction().commit();
+        
+        logger.info("Created Response");
+        
+        //        
+        // //TODO FIXME
+        // session.update(tempStudent);
+        // logger.info("QuizResponse successfully Saved");
+        // logger.debug(tempChoice.getDescription());
+        // logger.debug("HELP");
+         session.getTransaction().commit();
         
       } catch (HibernateException e) {
         session.close();
