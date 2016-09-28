@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.openclicker.server.util.EmptyValueException;
 import org.openclicker.server.util.SetStatusException;
 
-public class StartQuizResourceTest {
+public class QuizResponseResourceTest {
   
   private StartQuizResource foo;
   @Before
@@ -71,7 +71,6 @@ public class StartQuizResourceTest {
   public void testStartEndNewQuiz() throws EmptyValueException, SetStatusException{
       foo.setStatusOfQuiz(1, 2, true, false);
       foo.setStatusOfQuiz(1, 2, false, false);
+      //TODO missing an assert
   }
-  
-  
 }

@@ -16,6 +16,7 @@ public class AvailableChoice implements Serializable {
   private Set<Quiz> quizzesAsChoice = new HashSet<Quiz>();
   
   public AvailableChoice() {
+    this.setDescription("");
 
   }
   

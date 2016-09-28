@@ -1,3 +1,5 @@
 An opensource implmentation of the educational clickers used to quiz students
 
-A sleek and easy to use alternative to the educational clickers. -Clayton
+java -cp server-jar-with-dependencies.jar org.hsqldb.server.Server -database.0 file:data/tutorial
+java -jar server-jar-with-dependencies.jar
+

@@ -212,6 +212,38 @@ public class EventManagerIntegrationTest {
       System.out.println(instance.getQuiz().getQuiz_uid());
     }
     
+  }
+  @Test
+  public void testLoadExistingQuizAndAddStudentResponse(){
+    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+    session.beginTransaction();
+    //Add a Class
+    Class newClass = new Class("TestClass");
+    session.save(newClass);
+    int newClassId = newClass.getClass_uid();
+    System.out.println("A new Class was added: " + newClass.getClass_uid());
+    
+    //Add a student;
+    Student newStudent = new Student("Test", "Subject", Gender.M, "test@subject.com");
+    session.save(newStudent);
+    int newStudentID = newStudent.getStudent_uid();
+    System.out.println("A new Student was added: " + newStudentID);
+    session.getTransaction().commit();
+    
+    
+    // ==============================
+    // NEW SESSION BEGINS HERE
+    // ==============================
+    session=HibernateUtil.getSessionFactory().getCurrentSession();
+    session.beginTransaction();
+    Student loadedStudent = (Student) session.load(Student.class, newStudentID);
+    System.out.println("The Loaded student UID: " + loadedStudent.getStudent_uid());
+//    
+//    
+//    //Add a quizResponse;
+//    QuizResponse newQuizResponse = new QuizResponse(newClass, quiz, choice, dateTaken)
+    
+//    loadedStudent.addQuizResponse(quizResponse)
     
   }
   

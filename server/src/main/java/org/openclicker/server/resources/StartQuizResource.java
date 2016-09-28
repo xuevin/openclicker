@@ -160,8 +160,8 @@ public class StartQuizResource {
     session.beginTransaction();
     Class tempClass = (Class) session.get(Class.class, classUid);
     Quiz tempQuiz = (Quiz) session.get(Quiz.class, quizUid);
-
-    if(!tempClass.getQuizzes_Unmodifiable().contains(tempQuiz)){
+    
+    if (!tempClass.getQuizzes_Unmodifiable().contains(tempQuiz)) {
       throw new EmptyValueException("The class has never asked this quiz");
     }
     
@@ -169,9 +169,9 @@ public class StartQuizResource {
     // You should really only be doing one query but this explodes!
     
     // Instantiate the choices to zero
-    HashMap<String,Integer> choiceAndCount = new HashMap<String,Integer>();
-    for (AvailableChoice choices : tempQuiz.getChoices_Unmodifiable()) {
-      choiceAndCount.put(choices.getDescription(), 0);
+    HashMap<AvailableChoice,Integer> choiceAndCount = new HashMap<AvailableChoice,Integer>();
+    for (AvailableChoice choice : tempQuiz.getChoices_Unmodifiable()) {
+      choiceAndCount.put(choice, 0);
     }
     
     // Tally up the scores
@@ -181,27 +181,24 @@ public class StartQuizResource {
           .getQuizResponse_Unmodifiable();
       for (QuizResponse response : responses) {
         if (response.getQuiz().equals(tempQuiz)) {
-          String selectedString = response.getSelected_choice()
-              .getDescription();
-          choiceAndCount.put(selectedString,
-              choiceAndCount.get(selectedString) + 1);
+          // Increment a single choice
+          choiceAndCount.put(response.getSelected_choice(), choiceAndCount
+              .get(response.getSelected_choice()) + 1);
         }
       }
     }
     
     // JSON-ify all the choices/count
     JSONArray choiceArray = new JSONArray();
-    for (String key : choiceAndCount.keySet()) {
-      JSONObject temp = new JSONObject();
-      temp.put("description", key);
+    for (AvailableChoice key : choiceAndCount.keySet()) {
+      
+      JSONObject temp = AvailableChoiceResource.toJSON(key);
       temp.put("count", choiceAndCount.get(key));
       choiceArray.add(temp);
     }
     // JSON-ify all the answers
-    JSONArray answerArray = new JSONArray();
-    for (AvailableChoice answer : tempQuiz.getAnswers_Unmodifiable()) {
-      answerArray.add(answer.getDescription());
-    }
+    JSONArray answerArray = AvailableChoiceResource.toJSON(tempQuiz
+        .getAnswers_Unmodifiable());
     
     session.close();
     

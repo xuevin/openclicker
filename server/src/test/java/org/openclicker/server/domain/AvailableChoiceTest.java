@@ -38,14 +38,14 @@ public class AvailableChoiceTest {
   
   @Test
   public void testSetDescription() {
-    assertEquals(null, choice1.getDescription());
+    assertEquals("", choice1.getDescription());
     choice1.setDescription("happy");
     assertEquals("happy", choice1.getDescription());
   }
   
   @Test
   public void testGetDescription() {
-    assertEquals(null, choice1.getDescription());
+    assertEquals("", choice1.getDescription());
     assertEquals("FooBar", choice2.getDescription());
   }
   
